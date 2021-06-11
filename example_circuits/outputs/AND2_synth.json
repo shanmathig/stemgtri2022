@@ -1,0 +1,69 @@
+{
+  "creator": "Yosys 0.9+932 (git sha1 65f197e2, clang  -fPIC -Os)",
+  "modules": {
+    "AND2": {
+      "attributes": {
+        "top": 1,
+        "src": "AND2.v:1"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [ 2 ]
+        },
+        "b": {
+          "direction": "input",
+          "bits": [ 3 ]
+        },
+        "o": {
+          "direction": "output",
+          "bits": [ 4 ]
+        }
+      },
+      "cells": {
+        "$auto$simplemap.cc:235:simplemap_logbin$46": {
+          "hide_name": 1,
+          "type": "$_AND_",
+          "parameters": {
+          },
+          "attributes": {
+            "src": "AND2.v:7"
+          },
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [ 2 ],
+            "B": [ 3 ],
+            "Y": [ 4 ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "hide_name": 0,
+          "bits": [ 2 ],
+          "attributes": {
+            "src": "AND2.v:2"
+          }
+        },
+        "b": {
+          "hide_name": 0,
+          "bits": [ 3 ],
+          "attributes": {
+            "src": "AND2.v:3"
+          }
+        },
+        "o": {
+          "hide_name": 0,
+          "bits": [ 4 ],
+          "attributes": {
+            "src": "AND2.v:4"
+          }
+        }
+      }
+    }
+  }
+}

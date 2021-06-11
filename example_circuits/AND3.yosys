@@ -1,0 +1,19 @@
+read_verilog -sv AND3.v
+hierarchy -check -top AND3
+
+# no optimization for now!
+proc
+#opt
+
+fsm
+#opt
+
+memory
+#opt
+
+techmap
+
+clean
+
+write_verilog outputs/AND3_synth.v
+json -o outputs/AND3_synth.json

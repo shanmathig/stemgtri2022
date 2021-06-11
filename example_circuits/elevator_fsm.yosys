@@ -1,0 +1,19 @@
+read_verilog -sv elevator_fsm.sv
+hierarchy -check -top elevator_fsm
+
+# no optimization for now!
+proc
+#opt
+
+fsm
+#opt
+
+memory
+#opt
+
+techmap
+
+clean
+
+write_verilog outputs/elevator_fsm_synth.v
+json -o outputs/elevator_fsm_synth.json

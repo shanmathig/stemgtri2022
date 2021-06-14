@@ -1,0 +1,19 @@
+read_verilog -sv INV.v
+hierarchy -check -top INV
+
+# no optimization for now!
+proc
+#opt
+
+fsm
+#opt
+
+memory
+#opt
+
+techmap
+
+clean
+
+write_verilog outputs/INV_synth.v
+json -o outputs/INV_synth.json

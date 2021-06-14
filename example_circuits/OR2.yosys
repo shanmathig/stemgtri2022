@@ -1,0 +1,19 @@
+read_verilog -sv OR2.v
+hierarchy -check -top OR2
+
+# no optimization for now!
+proc
+#opt
+
+fsm
+#opt
+
+memory
+#opt
+
+techmap
+
+clean
+
+write_verilog outputs/OR2_synth.v
+json -o outputs/OR2_synth.json

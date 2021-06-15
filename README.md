@@ -11,3 +11,6 @@ input/output files and top module.
 It is suggest you ssh into `tmpo-wms-d01.ctisl.gtri.org` where yosys and
 other SymbiFlow utilities are already installed.
 
+## Server
+
+The Server directory contains the back-end (server) and also the front end (HTML). There is a README in the directory.

@@ -1,0 +1,13 @@
+strict digraph AND3{
+	2 [label=INPUT];
+	3 [label=INPUT];
+	4 [label=INPUT];
+	6 [label=AND];
+	5 [label=AND];
+	7 [label=OUTPUT];
+	2 -> 6;
+	3 -> 6;
+	6 -> 5;
+	4 -> 5;
+	5 -> 7;
+}

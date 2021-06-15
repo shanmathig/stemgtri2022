@@ -7,7 +7,7 @@ Flask is a Python framework for creating server-side applications.
 p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else. You can think of your whole browser page as your sketch, including HTML5 objects for text, input, video, webcam, and sound.
 
 ## Installation
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar (you will already have to have Python 3+). This used Python 3.7.2, but as long as it is Python 3+, the program should work.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install Flask (you will already have to have Python 3+). This used Python 3.7.2, but as long as it is Python 3+, the program should work.
 
 ```bash
 pip install Flask

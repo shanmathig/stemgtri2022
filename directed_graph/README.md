@@ -1,9 +1,15 @@
-# Directed Graph Implementation
-Object representations for nodes and edges on a directed graph. Inputs and outputs are currently represented as nodes, as are logic gates.
+# Directed Graphs (Netlists) Implementation
+The netlist graphs use dictionaries to store a node key and its associated edges (which, when looped through, can be used to find a target node and other edge info).
 
-## Sample Files
-* main.py constructs a directed graph representation for the AND3 yosys sample found in the example_circuits directory. You can find a visual representation in the AND3.gv file. This [website](https://dreampuf.github.io/GraphvizOnline/) can be used to visualize the graph. Just paste AND3.gv inside the editor on the website.
-* test.py is for testing class methods.
+Old graphs now moved to the old_graphs directory. 
 
-## Running Files
-Use ```python main.py``` or ```python test.py``` to run the desired file.
+## Algorithms
+Algorithms can be found in the algorithms directory. 
+
+### Algorithms contained:
+* Kernighan and Lin Algorithm
+
+## To do:
+* Reorganize some directory files
+* Find cutsize for use in KL algorithm
+* Improve efficiency of KL algorithm?

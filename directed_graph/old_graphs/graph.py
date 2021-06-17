@@ -1,4 +1,3 @@
-
 class Graph:
 
     def __init__(self):
@@ -14,11 +13,19 @@ class Graph:
         """Append an edge object to the edges array."""
         self.edges.append(edge_object)
 
+    def get_nodes(self):
+        """Get all the nodes of the graph."""
+        return self.nodes
+
+    def get_edges(self):
+        """Get all the edges of the graph."""
+        return self.edges
+
     def create_gv_file(self):
         """Create a .gv file which can be opened online for a quick visualization."""
 
         # should replace 'AND3' with parameter value at some point
-        write_string = 'strict digraph AND3{\r\n'
+        write_string = 'strict digraph AND3 {\r\n'
         for node in self.nodes:
             write_string += '\t{} [label={}];\r\n'.format(node.get_node_id(), node.get_gate_type())
 

@@ -15,8 +15,9 @@ pip install Flask
 You don't need to install p5.js because it is already downloaded and routed in the html.
 
 ## Usage
-~~To start the server, simply paste the command below to start it.~~
+To start the server from the root directory, simply paste the command below to start it.
 ```bash
-python app.py
-```
+python -m server.app
+``` 
+
 To edit any of the visuals through p5, go to `static/js/index.js` and edit as so. A full documentation and tutorials can be found on the p5.js [website](https://p5js.org/).

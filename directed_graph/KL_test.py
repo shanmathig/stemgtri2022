@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     # run KL algorithm
     # to do: look at edge cases and what happens if there is an odd number of nodes in the graph
-    partition = KL(graph)
+    partition = KL(graph, [node_a, node_b, node_d, node_e])
     KL_result = partition.swap_pairs()
     # result is tuple containing arrays
     # the arrays are arranged such that index 0 is the topmost node (based on the examples)

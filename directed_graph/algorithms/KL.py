@@ -1,17 +1,24 @@
 
 class KL:
 
-    def __init__(self, graph):
+    def __init__(self, graph, left_partition_predefined=[]):
         """Initialize the KL algorithm with necessary class variables.
-        Requires Netlist_Graph class as graph parameter.
+        Requires Netlist_Graph class as graph parameter. 
+        left_partition_predefined (for specifying the initial left partition and order of it) is optional and requires node objects.
         The left and right sides of the partition are currently created manually to test the algorithm with the textbook problem."""
+        self.cutsize = 0
         self.graph_nodes = graph.get_nodes()
-        #self.left_side = dict(list(self.graph_nodes.items())[int(len(self.graph_nodes)/2):])
-        #self.right_side = dict(list(self.graph_nodes.items())[:int(len(self.graph_nodes)/2)])
 
-        # to do: find a more efficient way to use indices later in the code so that copies dont need to be created.
-        self.left_side_unmodified = {k: v for k, v in self.graph_nodes.items() if k.get_node_id() == 1 or k.get_node_id() == 2 or k.get_node_id() == 4 or k.get_node_id() == 5}
-        self.right_side_unmodified = {k: v for k, v in self.graph_nodes.items() if k.get_node_id() == 3 or k.get_node_id() == 6 or k.get_node_id() == 7 or k.get_node_id() == 8}
+        # create a list of nodes for the left side of the partition if one has not been specified
+        if not left_partition_predefined:
+            # makes list of the first half of the graph nodes in self.graph_nodes
+            filter_list = list(self.graph_nodes.keys())[int(len(self.graph_nodes)/2):]
+        else:
+            filter_list = left_partition_predefined
+        
+        # splits nodes into left and right sides
+        self.left_side_unmodified = dict(filter(lambda e: e[0] in filter_list, self.graph_nodes.items()))
+        self.right_side_unmodified = dict(filter(lambda e: e[0] not in filter_list, self.graph_nodes.items()))
 
         self.left_side = self.left_side_unmodified.copy()
         self.right_side = self.right_side_unmodified.copy()
@@ -29,7 +36,40 @@ class KL:
         Returns a dictionary.
         """
         return self.right_side
+
+    def calc_initial_cutsize(self):
+        """Calculates the initial cutsize so that it can later be used to calculate swap cutsize, which is relative to this."""
+        # loop through all the nodes in the left partition
+        for node in self.left_side.keys():
+            # loop through all the edges in the left partition node
+            for edge in self.left_side[node]:
+                # check if any edges cross over to the other side and add weights to cutsize if so
+                if edge.get_target() in self.right_side:
+                    self.cutsize += edge.get_weight()
         
+        return self.cutsize
+
+    def after_swap_cutsize(self, left_node, right_node):
+        """Calculates cutsize after each swap relative to the initial cutsize."""
+        # loops through all the edges in the left side node that was just swapped
+        for edge in self.left_side[left_node]:
+            # skips finding weight from cutsize if the left side node that was swapped is directly connected to the right side node
+            if not edge.get_target() == right_node:
+                # adds to cutsize if the edge crosses over to the other side, subtracts from cutsize if not
+                if edge.get_target() in self.right_side:
+                    self.cutsize += edge.get_weight()
+                else:
+                    self.cutsize -= edge.get_weight()
+
+        # same as above but for the right side node that was swapped
+        for edge in self.right_side[right_node]:
+            if not edge.get_target() == left_node:
+                if edge.get_target() in self.left_side:
+                    self.cutsize += edge.get_weight()
+                else:
+                    self.cutsize -= edge.get_weight()
+
+        return self.cutsize
 
     def calc_costs(self, node_1, node_2=None, calc_xy_cost=False):
         """
@@ -62,15 +102,15 @@ class KL:
                 internal_cost += edge.get_weight()
         return (external_cost - internal_cost, xy_cost)
 
-
-    def calc_gain(self, ex_minus_ix, ey_minus_iy, xy_cost):
+    @staticmethod
+    def calc_gain(ex_minus_ix, ey_minus_iy, xy_cost):
         """
         Gain formula for KL.
         gain(x,y) = (E_x - I_x) + (E_y - I_y) - 2c(x,y)
         """
         return ex_minus_ix + ey_minus_iy - 2*xy_cost
 
-    def swap_loops(self):
+    def run(self):
         """Contains main loops used in the KL swaps."""
     
         # number to be incremented in while loop
@@ -80,35 +120,34 @@ class KL:
         while swap_num < max(len(self.left_side_unmodified), len(self.right_side_unmodified)):
 
             # variables used to store what the best gain is
-            max_gain = -999
+            max_gain = float('-inf')
             max_gain_pair = []
             # used to set the index
             swap_index = []
 
-
             # enumerates unmodified dictionary for the left and right sides
             # using the modified dictionary messes with the indices, which means positions would be incorrect in the final array returned by the swap_pairs method
-            for index, i in enumerate(self.left_side_unmodified):
+            for i, first_node_in_pair in enumerate(self.left_side_unmodified):
                 # only checks gains if the node has not already been locked
-                if not i.get_lock_status():
+                if not first_node_in_pair.get_lock_status():
                     # calculate costs
-                    ex_minus_ix, _ = self.calc_costs(i)
+                    ex_minus_ix, _ = self.calc_costs(first_node_in_pair)
 
                     # enumerates right side
                     # used to calculate e_y - i_y and c(x,y)
-                    for index_2, j in enumerate(self.right_side_unmodified):
+                    for j, second_node_in_pair in enumerate(self.right_side_unmodified):
                         # only checks gains and costs if node has not already been locked
-                        if not j.get_lock_status():
+                        if not second_node_in_pair.get_lock_status():
                             # calculate cost (including c(x,y), hence the calc_xy_cost=True param)
-                            ey_minus_iy, xy_cost = self.calc_costs(i, j, calc_xy_cost=True)
+                            ey_minus_iy, xy_cost = self.calc_costs(first_node_in_pair, second_node_in_pair, calc_xy_cost=True)
                             # calculate gain using gain formula
-                            current_swap_gain = self.calc_gain(ex_minus_ix, ey_minus_iy, xy_cost)
+                            current_swap_gain = KL.calc_gain(ex_minus_ix, ey_minus_iy, xy_cost)
                             # check if current swap variation is the maximum gain swap
                             # if it is, it updates variables and stores the two nodes that led to this max gain
                             if current_swap_gain > max_gain:
                                 max_gain = current_swap_gain
-                                max_gain_pair = [i, j]
-                                swap_index = [index, index_2]
+                                max_gain_pair = [first_node_in_pair, second_node_in_pair]
+                                swap_index = [i, j]
                                 
             # locks nodes with the max gain
             max_gain_pair[0].lock_node()
@@ -120,19 +159,38 @@ class KL:
             self.right_side[max_gain_pair[0]] = self.left_side[max_gain_pair[0]]
             del self.left_side[max_gain_pair[0]]
             del self.right_side[max_gain_pair[1]]
-            
+        
             # adds max gain to specific index in the final array that will be returned in the swap_pairs() method
             self.right_final[swap_index[1]] = max_gain_pair[0]
             self.left_final[swap_index[0]] = max_gain_pair[1]
             # increments swap number (for the while loop)
             swap_num += 1
+
+            after_swap_cutsize = self.after_swap_cutsize(max_gain_pair[1], max_gain_pair[0])
+
+            # prints out details of the swap after it is complete
+            # i, pair, gain, cutsize
+            print("{: <20} ({}, {}) \t  {: <20} {: <20}".format(
+                swap_num, 
+                *max_gain_pair,
+                max_gain,
+                after_swap_cutsize
+            ))
         
 
     def swap_pairs(self):
-        """Creates class variables that store the final arrays that will be returned."""
+        """Creates class variables that store the final arrays that will be returned and calculates the initial cutsize."""
         self.left_final = [0] * max(len(self.left_side), len(self.right_side))
         self.right_final = [0] * max(len(self.left_side), len(self.right_side))
 
-        self.swap_loops()
+        initial_cutsize = self.calc_initial_cutsize()
+
+        # table columns to print out
+        # i, pair, gain, cutsize
+        print("{: <20} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize"))
+        # prints initial cutsize before the first swap
+        print("{: <20} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize))
+
+        self.run()
         
         return self.left_final, self.right_final

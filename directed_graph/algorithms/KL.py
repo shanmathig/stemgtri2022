@@ -1,3 +1,5 @@
+import datetime
+import json
 
 class KL:
 
@@ -8,6 +10,7 @@ class KL:
         The left and right sides of the partition are currently created manually to test the algorithm with the textbook problem."""
         self.cutsize = 0
         self.graph_nodes = graph.get_nodes()
+        self.json = {'data': []}
 
         # create a list of nodes for the left side of the partition if one has not been specified
         if not left_partition_predefined:
@@ -116,8 +119,10 @@ class KL:
         # number to be incremented in while loop
         swap_num = 0
 
-        # checks if all variations of swaps have been completed based
+        # checks if all variations of swaps have been completed based on which iteration it is
         while swap_num < max(len(self.left_side_unmodified), len(self.right_side_unmodified)):
+
+            swap_start_time = datetime.datetime.now()
 
             # variables used to store what the best gain is
             max_gain = float('-inf')
@@ -163,21 +168,41 @@ class KL:
             # adds max gain to specific index in the final array that will be returned in the swap_pairs() method
             self.right_final[swap_index[1]] = max_gain_pair[0]
             self.left_final[swap_index[0]] = max_gain_pair[1]
+
+            # gets time when swap ends
+            swap_end_time = datetime.datetime.now()
+
             # increments swap number (for the while loop)
             swap_num += 1
 
+            # get cutsize after swap
             after_swap_cutsize = self.after_swap_cutsize(max_gain_pair[1], max_gain_pair[0])
+
+            # get time delta in milliseconds
+            time_delta = (swap_end_time - swap_start_time).total_seconds() * 1000.0
 
             # prints out details of the swap after it is complete
             # i, pair, gain, cutsize
-            print("{: <20} ({}, {}) \t  {: <20} {: <20}".format(
+            print("{: <20} ({}, {}) \t  {: <20} {: <20} {: <20}".format(
                 swap_num, 
                 *max_gain_pair,
                 max_gain,
-                after_swap_cutsize
+                after_swap_cutsize,
+                time_delta
             ))
-        
 
+            self.json['data'].append({
+                'iteration': swap_num,
+                'pair': [max_gain_pair[0].get_node_id(), max_gain_pair[1].get_node_id()],
+                'gain': max_gain,
+                'cutsize': after_swap_cutsize,
+                'swap_time': time_delta
+            })
+
+    def write_json_data(self):
+        with open('./server/static/algorithm_json/KL_data.json', 'w+') as file:
+            json.dump(self.json, file)
+        
     def swap_pairs(self):
         """Creates class variables that store the final arrays that will be returned and calculates the initial cutsize."""
         self.left_final = [0] * max(len(self.left_side), len(self.right_side))
@@ -187,10 +212,18 @@ class KL:
 
         # table columns to print out
         # i, pair, gain, cutsize
-        print("{: <20} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize"))
+        print("{: <20} {: <20} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize", "swap time (milliseconds)"))
         # prints initial cutsize before the first swap
-        print("{: <20} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize))
+        print("{: <20} {: <20} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize, "-"))
+
+        self.json['data'].append({
+            'iteration': 0,
+            'cutsize': initial_cutsize
+        })
 
         self.run()
+
+        self.write_json_data()
         
-        return self.left_final, self.right_final
+        print(self.left_final, self.right_final)
+        return '/static/algorithm_json/KL_data.json'

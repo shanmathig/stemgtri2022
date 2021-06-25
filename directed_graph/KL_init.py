@@ -1,8 +1,8 @@
-from .netlist_node import Netlist_Node
-from .netlist_graph import Netlist_Graph
-from .netlist_edges import Netlist_Edges
+from netlist_node import *
+from netlist_graph import *
+from netlist_edges import *
 
-from .algorithms.KL import KL
+from algorithms.KL import *
 
 def main():
     # stores graph nodes in an array

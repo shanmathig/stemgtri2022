@@ -1,12 +1,12 @@
 
 class Netlist_Node:
 
-    def __init__(self, gate_type, node_id, locked=False):
+    def __init__(self, label, node_id, locked=False):
         """
         Constructor that initializes object with specified gate type (ex. OR, AND, etc...) and a node ID 
         (currently determined by the bits value given by yosys).
         """
-        self.gate_type = gate_type
+        self.label = label
         self.id = node_id
         self.locked = locked
         self.edges = []
@@ -25,9 +25,9 @@ class Netlist_Node:
         """Returns the array of edges associated with the node."""
         return self.edges
 
-    def get_gate_type(self):
+    def get_label(self):
         """Return the gate type."""
-        return self.gate_type
+        return self.label
 
     def get_node_id(self):
         """Return the node ID."""
@@ -39,4 +39,4 @@ class Netlist_Node:
 
     def __repr__(self):
         """Return the ID of the node."""
-        return 'Node {}'.format(self.id)
+        return '"Node {}<{}>"'.format(self.label, self.id)

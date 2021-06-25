@@ -14,4 +14,4 @@ class Netlist_Edges:
 
     def __repr__(self):
         """Return the representation of the edges object."""
-        return 'Edge connects to {}'.format(self.target)
+        return '"Edge connects to {}"'.format(str(self.target).replace('"', ''))

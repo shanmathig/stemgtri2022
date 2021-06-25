@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 
 class KL:
 
@@ -23,8 +24,22 @@ class KL:
         self.left_side_unmodified = dict(filter(lambda e: e[0] in filter_list, self.graph_nodes.items()))
         self.right_side_unmodified = dict(filter(lambda e: e[0] not in filter_list, self.graph_nodes.items()))
 
+        self.side_to_json(self.left_side_unmodified)
+
+        self.json['data'].append({
+            'left_side_unmodified': self.side_to_json(self.left_side_unmodified),
+            'right_side_unmodified': self.side_to_json(self.right_side_unmodified)
+        })
+
         self.left_side = self.left_side_unmodified.copy()
         self.right_side = self.right_side_unmodified.copy()
+
+    def side_to_json(self, side):
+        side_json = json.loads(str(side))
+        side_json_modified = {}
+        for x in side_json.keys():
+            side_json_modified[x.replace("Node ", "")] = [y.replace("Edge connects to Node ", "") for y in side_json[x]]
+        return side_json_modified
     
     def get_left_side(self):
         """
@@ -200,7 +215,8 @@ class KL:
             })
 
     def write_json_data(self):
-        with open('./server/static/algorithm_json/KL_data.json', 'w+') as file:
+        path = 'static/algorithm_json/KL_data.json' # relative path from working directory (in this case where the app.py is located)
+        with open(path, 'w') as file:
             json.dump(self.json, file)
         
     def swap_pairs(self):
@@ -212,9 +228,9 @@ class KL:
 
         # table columns to print out
         # i, pair, gain, cutsize
-        print("{: <20} {: <20} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize", "swap time (milliseconds)"))
+        print("{: <20} {: <36} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize", "swap time (milliseconds)"))
         # prints initial cutsize before the first swap
-        print("{: <20} {: <20} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize, "-"))
+        print("{: <20} {: <36} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize, "-"))
 
         self.json['data'].append({
             'iteration': 0,
@@ -225,5 +241,4 @@ class KL:
 
         self.write_json_data()
         
-        print(self.left_final, self.right_final)
         return '/static/algorithm_json/KL_data.json'

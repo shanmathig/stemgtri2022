@@ -17,6 +17,10 @@ body, html{
 }
 #title{
 	font-family: 'Gochi Hand', cursive;
-	color: white;
-	font-size: 80px;
+	color: black;
+	font-size: 50px;
+    text-align: center;
+}
+#title-hr{
+    width: 200px;
 }

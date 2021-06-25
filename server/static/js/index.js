@@ -78,7 +78,7 @@ function preload(){
         for(var i = 0; i < listRightNodes.length; i++){
             var x = w*(5/8);
             var y = (h-2*250)*(i/listRightNodes.length)+250
-            someDict[getId(listRightNodes[i])] = [x, y, rightNodes[listRightNodes[i]], getLabel(listLeftNodes[i])];
+            someDict[getId(listRightNodes[i])] = [x, y, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i])];
             rightNodeKeys.push(getId(listRightNodes[i]))
         }
         currentSwap1 = getId(listLeftNodes[0]);
@@ -202,6 +202,6 @@ function windowResized() {
     for(var i = 0; i < listRightNodes.length; i++){
         var x = w*(5/8);
         var y = (h-2*250)*(i/listRightNodes.length)+250
-        someDict[getId(listRightNodes[i])] = [x, y, rightNodes[listRightNodes[i]], getLabel(listLeftNodes[i])];
+        someDict[getId(listRightNodes[i])] = [x, y, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i])];
     }
 }

@@ -17,7 +17,7 @@ You don't need to install p5.js because it is already downloaded and routed in t
 ## Usage
 To start the server from the root directory, simply paste the command below to start it.
 ```bash
-python -m server.app
+cd server && python app.py
 ``` 
 
 To edit any of the visuals through p5, go to `static/js/index.js` and edit as so. A full documentation and tutorials can be found on the p5.js [website](https://p5js.org/).

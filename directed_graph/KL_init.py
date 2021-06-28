@@ -73,15 +73,18 @@ def main():
 
     # run KL algorithm
     # to do: look at edge cases and what happens if there is an odd number of nodes in the graph
-    partition = KL(graph, [node_a, node_b, node_d, node_e])
+    partition = KL(graph, [node_a, node_b, node_d, node_e], True)
     KL_result = partition.swap_pairs()
     # result is tuple containing arrays
     # the arrays are arranged such that index 0 is the topmost node (based on the examples)
     # the 0th tuple index contains the left partition nodes
     # the 1st tuple index contains the right partition nodes
+
+    print(partition.get_best_swap_from_cutsize())
+
     
     # returns directory of results
-    return KL_result
+    return KL_result[0]
 
 if __name__ == "__main__":
     main()

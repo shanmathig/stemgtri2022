@@ -4,14 +4,17 @@ import re
 
 class KL:
 
-    def __init__(self, graph, left_partition_predefined=[]):
-        """Initialize the KL algorithm with necessary class variables.
+    def __init__(self, graph, left_partition_predefined=[], debug=False):
+        """
+        Initialize the KL algorithm with necessary class variables.
         Requires Netlist_Graph class as graph parameter. 
         left_partition_predefined (for specifying the initial left partition and order of it) is optional and requires node objects.
-        The left and right sides of the partition are currently created manually to test the algorithm with the textbook problem."""
+        debug parameter enables/disables print statements.
+        """
         self.cutsize = 0
         self.graph_nodes = graph.get_nodes()
         self.json = {'data': []}
+        self.debug = debug
 
         # create a list of nodes for the left side of the partition if one has not been specified
         if not left_partition_predefined:
@@ -22,7 +25,7 @@ class KL:
         
         # splits nodes into left and right sides
         self.left_side_unmodified = dict(filter(lambda e: e[0] in filter_list, self.graph_nodes.items()))
-        self.right_side_unmodified = dict(filter(lambda e: e[0] not in filter_list, self.graph_nodes.items()))
+        self.right_side_unmodified = dict(filter(lambda e: e[0] not in filter_list and not e[0].get_lock_status(), self.graph_nodes.items()))
 
         self.side_to_json(self.left_side_unmodified)
 
@@ -64,6 +67,12 @@ class KL:
                 # check if any edges cross over to the other side and add weights to cutsize if so
                 if edge.get_target() in self.right_side:
                     self.cutsize += edge.get_weight()
+        self.initial_cutsize = self.cutsize
+        # stores the initial left and right size so that they can later be updated or returned based on which swap yields the best cutsize
+        self.best_swap_based_on_cutsize = [
+            list(self.left_side.copy().keys()),
+            list(self.right_side.copy().keys())
+        ]
         
         return self.cutsize
 
@@ -76,7 +85,7 @@ class KL:
                 # adds to cutsize if the edge crosses over to the other side, subtracts from cutsize if not
                 if edge.get_target() in self.right_side:
                     self.cutsize += edge.get_weight()
-                else:
+                elif edge.get_target() in self.left_side:
                     self.cutsize -= edge.get_weight()
 
         # same as above but for the right side node that was swapped
@@ -84,7 +93,7 @@ class KL:
             if not edge.get_target() == left_node:
                 if edge.get_target() in self.left_side:
                     self.cutsize += edge.get_weight()
-                else:
+                elif edge.get_target() in self.right_side:
                     self.cutsize -= edge.get_weight()
 
         return self.cutsize
@@ -101,9 +110,11 @@ class KL:
             edges = self.graph_nodes[node_2]
             # select which side to compare to to determine external vs internal costs
             external_side = self.left_side
+            internal_side = self.right_side
         else:
             edges = self.graph_nodes[node_1]
             external_side = self.right_side
+            internal_side = self.left_side
         # base values for costs
         external_cost = 0
         internal_cost = 0
@@ -116,7 +127,7 @@ class KL:
             # checks if edge is external or internal
             if edge.get_target() in external_side:
                 external_cost += edge.get_weight()
-            else:
+            elif edge.get_target() in internal_side:
                 internal_cost += edge.get_weight()
         return (external_cost - internal_cost, xy_cost)
 
@@ -192,19 +203,28 @@ class KL:
 
             # get cutsize after swap
             after_swap_cutsize = self.after_swap_cutsize(max_gain_pair[1], max_gain_pair[0])
+            # updates best cutsize if it is a minimum - used in mincut algorithm
+            # also updates array representation of left and right side orderings during the swap with the best cutsize
+            if after_swap_cutsize < self.initial_cutsize:
+                self.initial_cutsize = after_swap_cutsize
+                self.best_swap_based_on_cutsize = [
+                    list(self.left_final.copy()),
+                    list(self.right_final.copy())
+                ]
 
             # get time delta in milliseconds
             time_delta = (swap_end_time - swap_start_time).total_seconds() * 1000.0
 
             # prints out details of the swap after it is complete
             # i, pair, gain, cutsize
-            print("{: <20} ({}, {}) \t  {: <20} {: <20} {: <20}".format(
-                swap_num, 
-                *max_gain_pair,
-                max_gain,
-                after_swap_cutsize,
-                time_delta
-            ))
+            if self.debug:
+                print("{: <20} ({}, {}) \t  {: <20} {: <20} {: <20}".format(
+                    swap_num, 
+                    *max_gain_pair,
+                    max_gain,
+                    after_swap_cutsize,
+                    time_delta
+                ))
 
             self.json['data'].append({
                 'iteration': swap_num,
@@ -215,22 +235,32 @@ class KL:
             })
 
     def write_json_data(self):
+        """Writes json data to file so that it can be accessed in the frontend."""
         path = 'static/algorithm_json/KL_data.json' # relative path from working directory (in this case where the app.py is located)
-        with open(path, 'w') as file:
-            json.dump(self.json, file)
+        try:
+            with open(path, 'w') as file:
+                json.dump(self.json, file)
+        except:
+            pass
+
+    def get_best_swap_from_cutsize(self):
+        """Returns saved final arrays with the best swaps based on the cutsize."""
+        return self.best_swap_based_on_cutsize
         
     def swap_pairs(self):
         """Creates class variables that store the final arrays that will be returned and calculates the initial cutsize."""
-        self.left_final = [0] * max(len(self.left_side), len(self.right_side))
-        self.right_final = [0] * max(len(self.left_side), len(self.right_side))
+        # store the initial ordering of the left and right sides so that they can be used if the initial ordering has the best cutsize
+        self.left_final = list(self.left_side.copy())
+        self.right_final = list(self.right_side.copy())
 
         initial_cutsize = self.calc_initial_cutsize()
 
-        # table columns to print out
-        # i, pair, gain, cutsize
-        print("{: <20} {: <36} {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize", "swap time (milliseconds)"))
-        # prints initial cutsize before the first swap
-        print("{: <20} {: <36} {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize, "-"))
+        if self.debug:
+            # table columns to print out
+            # i, pair, gain, cutsize
+            print("{: <20} {: <20} \t \t  {: <20} {: <20} {: <20}".format("i", "pair", "gain", "cutsize", "swap time (milliseconds)"))
+            # prints initial cutsize before the first swap
+            print("{: <20} {: <20} \t \t  {: <20} {: <20} {: <20}".format(0, "-", "-", initial_cutsize, "-"))
 
         self.json['data'].append({
             'iteration': 0,
@@ -239,6 +269,7 @@ class KL:
 
         self.run()
 
+        # writes json data to file
         self.write_json_data()
         
-        return '/static/algorithm_json/KL_data.json'
+        return '/static/algorithm_json/KL_data.json', [self.left_final, self.right_final]

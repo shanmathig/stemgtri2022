@@ -8,6 +8,7 @@ class Netlist_Graph:
         }
         """
         self.nodes = {}
+        self.clique_netlist = []
 
     def add_node(self, node_object, edges):
         """Creates a new item in the dictionary and creates an array that can be used to store Netlist_Edges."""
@@ -21,6 +22,14 @@ class Netlist_Graph:
     def get_nodes(self):
         """Return all the nodes in the netlist."""
         return self.nodes
+
+    def add_to_clique_netlist(self, clique_array):
+        """Add an array of nodes representing a clique to clique_netlist array."""
+        self.clique_netlist.append(clique_array)
+
+    def get_clique_based_netlist(self):
+        """Returns the array of clique netlists for a graph."""
+        return self.clique_netlist
 
     def create_gv_file(self):
         """Create a .gv file for visualization of the netlist."""

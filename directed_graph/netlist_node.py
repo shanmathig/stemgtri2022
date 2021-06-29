@@ -15,6 +15,21 @@ class Netlist_Node:
         """Locks a node for KL algorithm."""
         self.locked = True
 
+    def unlock_node(self):
+        """Unlocks a node for mincut."""
+        self.locked = False
+
+    def set_position(self, x, y):
+        """
+        Sets x and y position of node. 
+        Top left represents (0,0). Moving to the right increases x. Moving downwards increases y.
+        """
+        self.position = (x, y)
+    
+    def get_position(self):
+        """Returns coordinates/position of a node."""
+        return self.position
+
     def add_edge(self, edge):
         """Adds an edge to the array. 
         Used this instead of adding nodes to store extra info about weight of edges.

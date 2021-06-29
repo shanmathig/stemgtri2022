@@ -6,6 +6,7 @@
 	<link rel="stylesheet" href="/static/css/index.css">
 	<script src="/static/lib/p5/p5/p5.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src='https://cdn.plot.ly/plotly-2.2.0.min.js'></script>
 </head>
 <body>
 	<div id="canvas">
@@ -14,6 +15,9 @@
         <div id="overTheCanvas">
         	<h1 id="title">KL Algorithm</h1>
         	<hr id="title-hr">
+        	<div id="chartContainer" style="height: 370px; width: 33%;"></div>
+        	<script src="/static/js/graph.js"></script>
+        	<center><a id="ghost-button" onclick="graphToggle()">Toggle Graph</a></center>
         </div>
     </div>
 </body>

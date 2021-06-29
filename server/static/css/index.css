@@ -24,3 +24,19 @@ body, html{
 #title-hr{
     width: 200px;
 }
+#ghost-button {
+    display: inline-block;
+    width: 200px;
+    padding: 8px;
+    color: black;
+    border: 1px solid #fff;
+    text-align: center;
+    outline: none;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.3);
+    margin-top: 25vh;
+}
+#ghost-button:hover, #ghost-button:active {
+    background-color: black;
+    color: white;
+}

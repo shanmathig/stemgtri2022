@@ -24,8 +24,6 @@ class KL:
         self.left_side_unmodified = dict(filter(lambda e: e[0] in filter_list, self.graph_nodes.items()))
         self.right_side_unmodified = dict(filter(lambda e: e[0] not in filter_list, self.graph_nodes.items()))
 
-        self.side_to_json(self.left_side_unmodified)
-
         self.json['data'].append({
             'left_side_unmodified': self.side_to_json(self.left_side_unmodified),
             'right_side_unmodified': self.side_to_json(self.right_side_unmodified)

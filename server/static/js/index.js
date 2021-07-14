@@ -3,29 +3,34 @@ let w = window.innerWidth
 let h = window.innerHeight
 let loaded = false
 let isProcess = false
-var maxSpeed = 10;
-var currentSpeed = 1;
+var maxSpeed = 10
+var currentSpeed = 1
 var inProcess = dateIntial()
 var sizeOfCircle = 64
 var sizeOfText = 36
 var dataJSON
 let leftNodes
 let rightNodes
-var nodes = {}
 var currentIterationTime
 var currentIteration = 0
 var maxIteration
 var currentCombination
 var isfinished = false
 var maxTimeIter = 500
-var currentNodes = [0,0];
-var leftNodeKeys = [];
-var rightNodeKeys = [];
-var currentSwap = 0;
+var currentNodes = [0,0]
+var leftNodeKeys = []
+var rightNodeKeys = []
+var currentSwap = 0
 var lockedSwap = false
-var changeIteration = false;
-var lockedNodeTimeStart;
+var changeIteration = false
+var lockedNodeTimeStart
 var weightColors = {}
+var iteration_data
+
+/*
+    Classes in the 'class.js' file
+*/
+const nodes = new Nodes();
 
 //functions used throughout the process
 function objectSize(obj) {//returns a javascript object (dict) size
@@ -65,9 +70,24 @@ function preload(){ //before the canvas script runs
     dataJSON = loadJSON('/static/algorithm_json/KL_data.json'); //gets the JSON
 }
 
+function graphData(){
+    trace1.x.push(currentIteration)
+    trace1.y.push(iteration_data.getIteration(currentIteration).gain)
+    trace2.x.push(currentIteration)
+    trace2.y.push(iteration_data.getIteration(currentIteration).cutsize)
+    Plotly.newPlot('chartContainer', data, layout);
+}
+
 function setup() { //sets up the canvas and values for swap
     leftNodes = dataJSON["data"][0]["left_side_unmodified"]
     rightNodes = dataJSON["data"][0]["right_side_unmodified"]
+
+    /*
+        ----------------------------------------------------------------------------
+        Ignore the two for-loops (they are just finding all the unique weight values)
+        ----------------------------------------------------------------------------
+    */
+
     //loops through all the intial left nodes
     for(var node in leftNodes){
         for(var i = 0; i<leftNodes[node].length; i++){
@@ -88,32 +108,51 @@ function setup() { //sets up the canvas and values for swap
             }
         }
     }
+
+    //For existing node key pairs (ids) that haven't been locked yet
     listLeftNodes = Object.keys(leftNodes);
     listRightNodes = Object.keys(rightNodes);
+
     for(var i = 0; i < listLeftNodes.length; i++){
+
         //sets the coordinates of each node
         var x = w*(3/8);
         var y = (h-2*200)*(i/listLeftNodes.length)+200;
-        // {"id": [{"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, weight-info, label, locked]}
-        nodes[getId(listLeftNodes[i])] = [{"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false];
+
+        // adds a node to nodes
+        nodes.addNode(new Node(getId(listLeftNodes[i]), {"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false))
+        
+        //pushes existing unlocked id keys to leftNodeKeys
         leftNodeKeys.push(getId(listLeftNodes[i]))
     }
-    //same as the above for loop
+
     for(var i = 0; i < listRightNodes.length; i++){
+        //sets the coordinates of each node
         var x = w*(5/8);
         var y = (h-2*200)*(i/listRightNodes.length)+200
-        nodes[getId(listRightNodes[i])] = [{"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false];
+
+        // adds a node to nodes
+        nodes.addNode(new Node(getId(listRightNodes[i]), {"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false))
+        
+        //pushes existing unlocked id keys to leftNodeKeys
         rightNodeKeys.push(getId(listRightNodes[i]))
     }
+
+    //sets up for swap
     maxIteration = Math.max(objectSize(leftNodes), objectSize(rightNodes)) //finds the final iteration
     updateCurrentCombination() //sets the number of swap combinations
-    //pushes data to the graph
+    iteration_data = new Data(dataJSON["data"])
+
+    //pushes inital data to the graph
     trace1.x.push(currentIteration)
     trace1.y.push(0)
     trace2.x.push(currentIteration)
     trace2.y.push(dataJSON["data"][currentIteration+1]["cutsize"])
     Plotly.newPlot('chartContainer', data, layout);
+
+    // confirms everything is ready 
     loaded = true;
+
     //set some default parms
     var canvas = createCanvas(w, h)
     textSize(sizeOfText)
@@ -154,32 +193,44 @@ function startProcess(){ //if space is pressed the processes will start
 }
 
 function drawEdges(){
-    for(var node in nodes){
-        [x1, y1, edges] = nodes[node];
-        for(var i = 0; i < edges.length; i++){
-            [x2, y2] = nodes[edges[i][0]];
-            stroke(weightColors[edges[i][1]])
-            line(x1["currentX"], y1["currentY"], x2["currentX"], y2["currentY"])
-        }
-    }
+    nodes.nodes.forEach((node) => {
+
+        x1 = node.x.currentX
+        y1 = node.y.currentY
+
+        node.edges.forEach((edge) => {
+            otherNode = nodes.findNode(edge.id)
+            x2 = otherNode.x.currentX
+            y2 = otherNode.y.currentY
+
+            stroke(weightColors[edge.weight])
+            line(x1, y1, x2, y2)
+        })
+
+    })
 }
 
 function drawNodes(){
-    for(var node in nodes){
-        [x, y, _, label, locked] = nodes[node];
+    nodes.nodes.forEach((node) => {
+        x = node.x.currentX
+        y = node.y.currentY
+        
         fill(255,255,255)
-        if(locked){
+
+        if(node.locked){
             stroke(0,255,0)
-            circle(x["currentX"], y["currentY"], sizeOfCircle)
+            circle(x, y, sizeOfCircle)
             stroke(0,0,0)
         }else{
             stroke(0,0,0)
-            circle(x["currentX"], y["currentY"], sizeOfCircle)
+            circle(x, y, sizeOfCircle)   
         }
+
         noStroke()
         fill(0,0,0)
-        text(label, x["currentX"], y["currentY"]+sizeOfText/4)
-    }
+        text(node.label, x, y+sizeOfText/4)
+    })
+    
 }
 
 function drawStats(){
@@ -212,93 +263,58 @@ function swap(){
     whichSwap = timeSince(currentIterationTime)/maxTimeIter
     if(Math.floor(whichSwap) < currentCombination){
         if(currentSwap != Math.floor(whichSwap)){
-            swapLeftNode = nodes[leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)]]
-            swapRightNode = nodes[rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length]]
-            swapLeftNode[0]["currentX"] = swapLeftNode[0]["intialX"]
-            swapLeftNode[1]["currentY"] = swapLeftNode[1]["intialY"]
-            swapRightNode[0]["currentX"] = swapRightNode[0]["intialX"]
-            swapRightNode[1]["currentY"] = swapRightNode[1]["intialY"]
+            nodes.updateNodeIntial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
+            nodes.updateNodeIntial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
         }
         currentSwap = Math.floor(whichSwap)
-        swapLeftNode = nodes[leftNodeKeys[Math.floor(whichSwap/rightNodeKeys.length)]]
-        swapRightNode = nodes[rightNodeKeys[Math.floor(whichSwap)%rightNodeKeys.length]]
-        //use the console logs below to debug any nodes
-        //console.log(nodes[leftNodeKeys[Math.floor(whichSwap/rightNodeKeys.length)]][3], nodes[rightNodeKeys[Math.floor(whichSwap)%rightNodeKeys.length]][3], Math.floor(whichSwap/rightNodeKeys.length), Math.floor(whichSwap)%rightNodeKeys.length)
-        //console.log(nodes[swapLeftNode][3], nodes[swapRightNode][3])
+        swapLeftNodeId = leftNodeKeys[Math.floor(whichSwap/rightNodeKeys.length)]
+        swapRightNodeId = rightNodeKeys[Math.floor(whichSwap)%rightNodeKeys.length]
+
         /*
             Algorithm = (V2-V1)*(timePassed/totalTime)+V1 (this will help with 3rd modeling if implemented)
         */
-        if(whichSwap-Math.floor(whichSwap) <= .5){ //first half of swap
-            //left node movement by time
-            v1 = createVector(swapLeftNode[0]["intialX"], swapLeftNode[1]["intialY"])
-            v2 = createVector(swapRightNode[0]["intialX"], swapRightNode[1]["intialY"])
-            v3 = (v2.sub(v1)).mult(2*(whichSwap-Math.floor(whichSwap))).add(v1)
-            swapLeftNode[0]["currentX"] = v3.x
-            swapLeftNode[1]["currentY"] = v3.y
-
-            //right node movement by time
-            v1 = createVector(swapLeftNode[0]["intialX"], swapLeftNode[1]["intialY"])
-            v2 = createVector(swapRightNode[0]["intialX"], swapRightNode[1]["intialY"])
-            v3 = (v1.sub(v2)).mult(2*(whichSwap-Math.floor(whichSwap))).add(v2)
-            swapRightNode[0]["currentX"] = v3.x
-            swapRightNode[1]["currentY"] = v3.y
-        }else{ //then back
-            //left node movement by time
-            v1 = createVector(swapLeftNode[0]["intialX"], swapLeftNode[1]["intialY"])
-            v2 = createVector(swapRightNode[0]["intialX"], swapRightNode[1]["intialY"])
-            v3 = (v1.sub(v2)).mult(2*(whichSwap-Math.floor(whichSwap)-.5)).add(v2)
-            swapLeftNode[0]["currentX"] = v3.x
-            swapLeftNode[1]["currentY"] = v3.y
-
-            //right node movement by time
-            v1 = createVector(swapLeftNode[0]["intialX"], swapLeftNode[1]["intialY"])
-            v2 = createVector(swapRightNode[0]["intialX"], swapRightNode[1]["intialY"])
-            v3 = (v2.sub(v1)).mult(2*(whichSwap-Math.floor(whichSwap)-.5)).add(v1)
-            swapRightNode[0]["currentX"] = v3.x
-            swapRightNode[1]["currentY"] = v3.y
-        }
+        nodes.swapNodes(swapLeftNodeId, swapRightNodeId, whichSwap-Math.floor(whichSwap))
     }
     else{//once iteration/comb is done
-        swapLeftNode = nodes[leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)]]
-        swapRightNode = nodes[rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length]]
-        swapLeftNode[0]["currentX"] = swapLeftNode[0]["intialX"]
-        swapLeftNode[1]["currentY"] = swapLeftNode[1]["intialY"]
-        swapRightNode[0]["currentX"] = swapRightNode[0]["intialX"]
-        swapRightNode[1]["currentY"] = swapRightNode[1]["intialY"]
+
+        //intial updated (TODO: make this a one time event)
+        nodes.updateNodeIntial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
+        nodes.updateNodeIntial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
+
         if(!changeIteration){ //swap the locked nodes position
             lockedNodeTimeStart = dateIntial()
             changeIteration = true;
-            someX1 = nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["intialX"]
-            someY1 = nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["intialY"]
-            someX2 = nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["intialX"]
-            someY2 = nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["intialY"]
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["intialX"] = someX2
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["intialY"] = someY2
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["intialX"] = someX1
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["intialY"] = someY1
+            id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
+            id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
+            nodes.swapInitial(id_1, id_2)
         }
-        if(timeSince(lockedNodeTimeStart) >= maxTimeIter){
+
+        if(timeSince(lockedNodeTimeStart) >= maxTimeIter){ //once the nodes are locked
             //locked nodes swaping exact placement
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["currentX"] = nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["intialX"]
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["currentY"] = nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["intialY"]
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["currentX"] = nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["intialX"]
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["currentY"] = nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["intialY"]
+            id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
+            id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
+
+            //intial updated
+            nodes.updateNodeIntial(id_1)
+            nodes.updateNodeIntial(id_2)
+
+            //moves to next iteration
             currentIteration += 1;
-            //console.log(currentIteration)
+
             //pairs are locked
-            nodes[dataJSON["data"][currentIteration+1]["pair"][0]][4] = true
-            nodes[dataJSON["data"][currentIteration+1]["pair"][1]][4] = true
-            leftNodeKeys.splice(leftNodeKeys.indexOf(String(dataJSON["data"][currentIteration+1]["pair"][0])), 1)
-            rightNodeKeys.splice(rightNodeKeys.indexOf(String(dataJSON["data"][currentIteration+1]["pair"][1])), 1)
+            nodes.findNode(id_1).locked = true
+            nodes.findNode(id_2).locked = true
+
+            //removes key pairs from existing unlocked pairs
+            leftNodeKeys.splice(leftNodeKeys.indexOf(id_1), 1)
+            rightNodeKeys.splice(rightNodeKeys.indexOf(id_2), 1)
+
+            //resets the current swap in the iteration
             currentSwap = 0
             currentIterationTime = dateIntial()
-            whichSwap = timeSince(currentIterationTime)
+
             //update graph
-            trace1.x.push(currentIteration)
-            trace1.y.push(dataJSON["data"][currentIteration+1]["gain"])
-            trace2.x.push(currentIteration)
-            trace2.y.push(dataJSON["data"][currentIteration+1]["cutsize"])
-            Plotly.newPlot('chartContainer', data, layout);
+            graphData()
 
             if(currentIteration == maxIteration){//once finished
                 isfinished = true;
@@ -306,18 +322,11 @@ function swap(){
                 updateCurrentCombination()//update the combination avaliable
             }
             changeIteration = false
-        }else{ //swaping of the locked nodes
-            v1 = createVector(nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["intialX"], nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["intialY"])
-            v2 = createVector(nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["intialX"], nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["intialY"])
-            v3 = (v1.sub(v2)).mult(timeSince(lockedNodeTimeStart)/maxTimeIter).add(v2)
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["currentX"] = v3.x
-            nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["currentY"] = v3.y
 
-            v1 = createVector(nodes[dataJSON["data"][currentIteration+2]["pair"][0]][0]["intialX"], nodes[dataJSON["data"][currentIteration+2]["pair"][0]][1]["intialY"])
-            v2 = createVector(nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["intialX"], nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["intialY"])
-            v3 = (v2.sub(v1)).mult(timeSince(lockedNodeTimeStart)/maxTimeIter).add(v1)
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][0]["currentX"] = v3.x
-            nodes[dataJSON["data"][currentIteration+2]["pair"][1]][1]["currentY"] = v3.y
+        }else{ //swaping of the locked nodes
+            id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
+            id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
+            nodes.swapNodes(id_1, id_2, (timeSince(lockedNodeTimeStart)/maxTimeIter)*.5)
         }
     }
 }

@@ -12,6 +12,7 @@ var trace2 = {
   type: 'scatter'
 };
 var data = [trace1, trace2];
+
 var layout = {
   title: {
     text:'Gain and Cutsize by Iteration',

@@ -5,6 +5,7 @@ let loaded = false
 let isProcess = false
 var maxSpeed = 10
 var currentSpeed = 1
+var deltaSpeed = .1
 var inProcess = dateIntial()
 var sizeOfCircle = 64
 var sizeOfText = 36
@@ -13,10 +14,13 @@ let leftNodes
 let rightNodes
 var currentIterationTime
 var currentIteration = 0
+var whichSwap;
 var maxIteration
 var currentCombination
 var isfinished = false
-var maxTimeIter = 500
+var maxTimeIter = 5000
+var timeIterSpeed = maxTimeIter / currentSpeed
+var maxTimeIterLocked = 1000
 var currentNodes = [0,0]
 var leftNodeKeys = []
 var rightNodeKeys = []
@@ -120,7 +124,7 @@ function setup() { //sets up the canvas and values for swap
         var y = (h-2*200)*(i/listLeftNodes.length)+200;
 
         // adds a node to nodes
-        nodes.addNode(new Node(getId(listLeftNodes[i]), {"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false))
+        nodes.addNode(getId(listLeftNodes[i]), new Node({"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false))
         
         //pushes existing unlocked id keys to leftNodeKeys
         leftNodeKeys.push(getId(listLeftNodes[i]))
@@ -132,7 +136,7 @@ function setup() { //sets up the canvas and values for swap
         var y = (h-2*200)*(i/listRightNodes.length)+200
 
         // adds a node to nodes
-        nodes.addNode(new Node(getId(listRightNodes[i]), {"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false))
+        nodes.addNode(getId(listRightNodes[i]), new Node({"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false))
         
         //pushes existing unlocked id keys to leftNodeKeys
         rightNodeKeys.push(getId(listRightNodes[i]))
@@ -164,9 +168,10 @@ function draw() {
     background(255, 255, 255);//refreshes when loop back
     if(loaded){
         stroke(0,0,0)
-        line(windowWidth/2, windowHeight*.2, windowWidth/2, windowHeight*.7)
         doProcess()
         drawEdges()
+        stroke(0,0,0) //black
+        line(windowWidth/2, windowHeight*.2, windowWidth/2, windowHeight*.7)
         drawNodes()
         drawStats()
         startProcess()
@@ -193,8 +198,7 @@ function startProcess(){ //if space is pressed the processes will start
 }
 
 function drawEdges(){
-    nodes.nodes.forEach((node) => {
-
+    for (const [id, node] of Object.entries(nodes.nodes)) {
         x1 = node.x.currentX
         y1 = node.y.currentY
 
@@ -206,12 +210,12 @@ function drawEdges(){
             stroke(weightColors[edge.weight])
             line(x1, y1, x2, y2)
         })
+    }
 
-    })
 }
 
 function drawNodes(){
-    nodes.nodes.forEach((node) => {
+    for (const [id, node] of Object.entries(nodes.nodes)) {
         x = node.x.currentX
         y = node.y.currentY
         
@@ -229,8 +233,7 @@ function drawNodes(){
         noStroke()
         fill(0,0,0)
         text(node.label, x, y+sizeOfText/4)
-    })
-    
+    }
 }
 
 function drawStats(){
@@ -247,6 +250,10 @@ function drawStats(){
         text("Weight: " + String(weight), 3*windowWidth/4+32, windowHeight/6+i*32+4)
         i++;
     }
+    text("Current Speed: " + String(currentSpeed.toFixed(2)) + "x", 3*windowWidth/4+32, windowHeight/6+(i+1)*32+4)
+    textSize(14)
+    text("Press space to start", 3*windowWidth/4+32, windowHeight/6+(i+2)*32+4)
+    text("Use scroll wheel up and down to control the speed", 3*windowWidth/4+32, windowHeight/6+(i+3)*32+4)
     textSize(sizeOfText)
     textAlign(CENTER)
     strokeWeight(5)
@@ -259,8 +266,8 @@ function doProcess(){
 }
 
 function swap(){
-    //eachSwapTime = (maxTimeIter/currentCombination) do whichSwap = timeSince(currentIterationTime)/eachSwapTime if you want a exponential decay swap time
-    whichSwap = timeSince(currentIterationTime)/maxTimeIter
+    //eachSwapTime = (timeIterSpeed/currentCombination) //do whichSwap = timeSince(currentIterationTime)/eachSwapTime if you want a exponential decay swap time
+    whichSwap = timeSince(currentIterationTime)/timeIterSpeed
     if(Math.floor(whichSwap) < currentCombination){
         if(currentSwap != Math.floor(whichSwap)){
             nodes.updateNodeIntial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
@@ -289,10 +296,12 @@ function swap(){
             nodes.swapInitial(id_1, id_2)
         }
 
-        if(timeSince(lockedNodeTimeStart) >= maxTimeIter){ //once the nodes are locked
-            //locked nodes swaping exact placement
+        if(timeSince(lockedNodeTimeStart) >= maxTimeIterLocked){ //once the nodes are locked
+            //locked nodes swapping exact placement
             id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
             id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
+
+            console.log(id_1, id_2)
 
             //intial updated
             nodes.updateNodeIntial(id_1)
@@ -305,9 +314,13 @@ function swap(){
             nodes.findNode(id_1).locked = true
             nodes.findNode(id_2).locked = true
 
+            console.log(leftNodeKeys, rightNodeKeys)
+
             //removes key pairs from existing unlocked pairs
-            leftNodeKeys.splice(leftNodeKeys.indexOf(id_1), 1)
-            rightNodeKeys.splice(rightNodeKeys.indexOf(id_2), 1)
+            leftNodeKeys.splice(leftNodeKeys.indexOf(String(id_1)), 1)
+            rightNodeKeys.splice(rightNodeKeys.indexOf(String(id_2)), 1)
+
+            console.log(leftNodeKeys, rightNodeKeys)
 
             //resets the current swap in the iteration
             currentSwap = 0
@@ -323,47 +336,43 @@ function swap(){
             }
             changeIteration = false
 
-        }else{ //swaping of the locked nodes
+        }else{ //swapping of the locked nodes
             id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
             id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
-            nodes.swapNodes(id_1, id_2, (timeSince(lockedNodeTimeStart)/maxTimeIter)*.5)
+            nodes.swapNodes(id_1, id_2, (timeSince(lockedNodeTimeStart)/maxTimeIterLocked)*.5+.5) // reverse half
         }
     }
 }
 
 function mouseWheel(event) { //changes speed of the swap (not implemented yet)
-    dSlot = event.delta;
-    if(dSlot > 0){ // scroll down
-        if(currentSpeed != 1){
-            currentSpeed -= 1;
-        }else{
-            currentSpeed = maxSpeed;
-        }
-    }else{ //scroll up
-        if(currentSpeed != maxSpeed){
-            currentSpeed += 1;
-        }else{
-            currentSpeed = 1;
+    if(isProcess){
+        dSlot = event.delta;
+        if(dSlot > 0){ // scroll down
+            if(currentSpeed > 1){
+                currentSpeed -= deltaSpeed;
+                timeIterSpeed = maxTimeIter / currentSpeed
+                currentIterationTime = dateIntial() - (whichSwap * timeIterSpeed)
+            }
+            if(currentSpeed < 1){
+                currentSpeed = 1
+            }
+        }else{ //scroll up
+            if(currentSpeed < maxSpeed){
+                currentSpeed += deltaSpeed;
+                timeIterSpeed = maxTimeIter / currentSpeed
+                currentIterationTime = dateIntial() - (whichSwap * timeIterSpeed)
+            }
+            if(currentSpeed > maxSpeed){
+                currentSpeed = maxSpeed
+            }
         }
     }
 }
 
-/* buggy because position matters
 //window resize done
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight)
+    nodes.resize(windowWidth/w, windowHeight/h)
     w = window.innerWidth
     h = window.innerHeight
-    listLeftNodes = Object.keys(leftNodes);
-    listRightNodes = Object.keys(rightNodes);
-    for(var i = 0; i < listLeftNodes.length; i++){
-        var x = w*(3/8);
-        var y = (h-2*250)*(i/listLeftNodes.length)+250;
-        nodes[getId(listLeftNodes[i])] = [{"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false];
-    }
-    for(var i = 0; i < listRightNodes.length; i++){
-        var x = w*(5/8);
-        var y = (h-2*250)*(i/listRightNodes.length)+250
-        nodes[getId(listRightNodes[i])] = [{"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false];
-    }
-}*/
+}

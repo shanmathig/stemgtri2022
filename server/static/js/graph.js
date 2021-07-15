@@ -15,7 +15,7 @@ var data = [trace1, trace2];
 
 var layout = {
   title: {
-    text:'Gain and Cutsize by Iteration',
+    text:'Gain and Cutsize',
     font: {
       family: 'Courier New, monospace',
       size: 24

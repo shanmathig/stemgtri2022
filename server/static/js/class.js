@@ -1,26 +1,19 @@
-
 // classes for nodes
 class Nodes {
     constructor() {
-        this.nodes = [];
+        this.nodes = {};
     }
 
-    addNode(node){
-        this.nodes.push(node)
+    addNode(id, node){
+        this.nodes[id] = node
     }
 
-    getNode(index){
-        return this.nodes[index]
+    getNode(id){
+        return this.nodes[id]
     }
 
     findNode(id){
-        var idNode
-        this.nodes.forEach((node) => {
-            if(node.id == id){
-                idNode = node
-            }
-        })
-        return idNode
+        return this.nodes[id]
     }
 
     swapNodes(node_1_id, node_2_id, percent_done){
@@ -69,14 +62,22 @@ class Nodes {
         node.updateX(node.x.intialX)
         node.updateY(node.y.intialY)
     }
+
+    resize(factorX, factorY){
+        for (const [id, node] of Object.entries(nodes.nodes)) {
+            node.x.intialX *= factorX
+            node.x.currentX *= factorX
+            node.y.intialY *= factorY
+            node.y.currentY *= factorY
+        }
+    }
 }
 
 class Node {
-    constructor(id, x, y, edges, label, locked) {
-        this.id = id;
+    constructor(x, y, edges, label, locked) {
         this.x = x;
         this.y = y;
-        this.edges = [];
+        this.edges = []; //keeping this list for now because looping through it one by one will happen either way (javascript object vs. array/list)
         for (var i = 0; i < edges.length; i++){
             this.edges.push(new Edge(edges[i][0], edges[i][1]))
         }
@@ -95,6 +96,7 @@ class Node {
     getIntial(){
         return [this.x.intialX, this.y.intialY]
     }
+
 }
 
 class Edge {

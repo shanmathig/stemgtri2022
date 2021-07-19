@@ -6,7 +6,7 @@ let isProcess = false
 var maxSpeed = 10
 var currentSpeed = 1
 var deltaSpeed = .1
-var inProcess = dateIntial()
+var inProcess = dateInitial()
 var sizeOfCircle = 64
 var sizeOfText = 36
 var dataJSON
@@ -21,14 +21,12 @@ var isfinished = false
 var maxTimeIter = 5000
 var timeIterSpeed = maxTimeIter / currentSpeed
 var maxTimeIterLocked = 1000
-var currentNodes = [0,0]
 var leftNodeKeys = []
 var rightNodeKeys = []
 var currentSwap = 0
-var lockedSwap = false
 var changeIteration = false
 var lockedNodeTimeStart
-var weightColors = {}
+//var weightColors = {}
 var iteration_data
 
 /*
@@ -46,7 +44,7 @@ function objectSize(obj) {//returns a javascript object (dict) size
     return size;
 };
 
-function dateIntial(){ //returns an int of the time
+function dateInitial(){ //returns an int of the time
     return (new Date()).getTime();
 }
 
@@ -92,14 +90,12 @@ function setup() { //sets up the canvas and values for swap
         ----------------------------------------------------------------------------
     */
 
-    //loops through all the intial left nodes
+    //loops through all the initial left nodes
     for(var node in leftNodes){
         for(var i = 0; i<leftNodes[node].length; i++){
             nodeWeight = getWeight(leftNodes[node][i])
             leftNodes[node][i] = [getId(leftNodes[node][i]), nodeWeight] //splits the id and the weight of the node in a list
-            if(!weightColors.hasOwnProperty(nodeWeight)){ //if the weight isn't recorded
-                weightColors[nodeWeight] = color(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255))) //weight is assigned random color
-            }
+            nodes.addWeightColor(nodeWeight);
         }
     }
     //same as the for loop above but for the right nodes
@@ -107,9 +103,7 @@ function setup() { //sets up the canvas and values for swap
         for(var i = 0; i<rightNodes[node].length; i++){
             nodeWeight = getWeight(rightNodes[node][i])
             rightNodes[node][i] = [getId(rightNodes[node][i]), nodeWeight]
-            if(!weightColors.hasOwnProperty(nodeWeight)){
-                weightColors[nodeWeight] = color(Math.floor(random(255)), Math.floor(random(255)), Math.floor(random(255))) 
-            }
+            nodes.addWeightColor(nodeWeight);
         }
     }
 
@@ -124,7 +118,13 @@ function setup() { //sets up the canvas and values for swap
         var y = (h-2*200)*(i/listLeftNodes.length)+200;
 
         // adds a node to nodes
-        nodes.addNode(getId(listLeftNodes[i]), new Node({"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, leftNodes[listLeftNodes[i]], getLabel(listLeftNodes[i]), false))
+        nodes.addNode(getId(listLeftNodes[i]), new Node(
+            {"initialX": x, "currentX": x}, // x
+            {"initialY": y, "currentY": y}, // y
+            leftNodes[listLeftNodes[i]], // edges
+            getLabel(listLeftNodes[i]), // label
+            false // locked
+        ))
         
         //pushes existing unlocked id keys to leftNodeKeys
         leftNodeKeys.push(getId(listLeftNodes[i]))
@@ -136,7 +136,13 @@ function setup() { //sets up the canvas and values for swap
         var y = (h-2*200)*(i/listRightNodes.length)+200
 
         // adds a node to nodes
-        nodes.addNode(getId(listRightNodes[i]), new Node({"intialX": x, "currentX": x}, {"intialY": y, "currentY": y}, rightNodes[listRightNodes[i]], getLabel(listRightNodes[i]), false))
+        nodes.addNode(getId(listRightNodes[i]), new Node(
+            {"initialX": x, "currentX": x}, // x
+            {"initialY": y, "currentY": y}, // y
+            rightNodes[listRightNodes[i]], // edges
+            getLabel(listRightNodes[i]), // label
+            false // locked
+        ))
         
         //pushes existing unlocked id keys to leftNodeKeys
         rightNodeKeys.push(getId(listRightNodes[i]))
@@ -172,7 +178,7 @@ function draw() {
         drawEdges()
         stroke(0,0,0) //black
         line(windowWidth/2, windowHeight*.2, windowWidth/2, windowHeight*.7)
-        drawNodes()
+        nodes.drawAllNodes();
         drawStats()
         startProcess()
 
@@ -190,10 +196,10 @@ function startProcess(){ //if space is pressed the processes will start
         }else{
             isProcess = true
             if(!currentIterationTime){
-                currentIterationTime = dateIntial()
+                currentIterationTime = dateInitial()
             }
         }
-        inProcess = dateIntial()
+        inProcess = dateInitial()
     }
 }
 
@@ -207,50 +213,28 @@ function drawEdges(){
             x2 = otherNode.x.currentX
             y2 = otherNode.y.currentY
 
-            stroke(weightColors[edge.weight])
+            stroke(nodes.weightColors[edge.weight])
             line(x1, y1, x2, y2)
         })
     }
 
 }
 
-function drawNodes(){
-    for (const [id, node] of Object.entries(nodes.nodes)) {
-        x = node.x.currentX
-        y = node.y.currentY
-        
-        fill(255,255,255)
-
-        if(node.locked){
-            stroke(0,255,0)
-            circle(x, y, sizeOfCircle)
-            stroke(0,0,0)
-        }else{
-            stroke(0,0,0)
-            circle(x, y, sizeOfCircle)   
-        }
-
-        noStroke()
-        fill(0,0,0)
-        text(node.label, x, y+sizeOfText/4)
-    }
-}
-
 function drawStats(){
     textSize(12)
     textAlign(LEFT)
     var i = 0;
-    for(var weight in weightColors){
+    for(var weight in nodes.weightColors){
         stroke(0,0,0)
         strokeWeight(3)
-        fill(weightColors[weight])
+        fill(nodes.weightColors[weight])
         circle(3*windowWidth/4, windowHeight/6+i*32, 16)
         strokeWeight(1)
         fill(0,0,0,0)
         text("Weight: " + String(weight), 3*windowWidth/4+32, windowHeight/6+i*32+4)
         i++;
     }
-    text("Current Speed: " + String(currentSpeed.toFixed(2)) + "x", 3*windowWidth/4+32, windowHeight/6+(i+1)*32+4)
+    text("Current KL Speed: " + String(currentSpeed.toFixed(2)) + "x", 3*windowWidth/4+32, windowHeight/6+(i+1)*32+4)
     textSize(14)
     text("Press space to start", 3*windowWidth/4+32, windowHeight/6+(i+2)*32+4)
     text("Use scroll wheel up and down to control the speed", 3*windowWidth/4+32, windowHeight/6+(i+3)*32+4)
@@ -270,8 +254,8 @@ function swap(){
     whichSwap = timeSince(currentIterationTime)/timeIterSpeed
     if(Math.floor(whichSwap) < currentCombination){
         if(currentSwap != Math.floor(whichSwap)){
-            nodes.updateNodeIntial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
-            nodes.updateNodeIntial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
+            nodes.updateNodeInitial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
+            nodes.updateNodeInitial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
         }
         currentSwap = Math.floor(whichSwap)
         swapLeftNodeId = leftNodeKeys[Math.floor(whichSwap/rightNodeKeys.length)]
@@ -284,12 +268,12 @@ function swap(){
     }
     else{//once iteration/comb is done
 
-        //intial updated (TODO: make this a one time event)
-        nodes.updateNodeIntial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
-        nodes.updateNodeIntial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
+        //initial updated (TODO: make this a one time event)
+        nodes.updateNodeInitial(leftNodeKeys[Math.floor(currentSwap/rightNodeKeys.length)])
+        nodes.updateNodeInitial(rightNodeKeys[Math.floor(currentSwap)%rightNodeKeys.length])
 
         if(!changeIteration){ //swap the locked nodes position
-            lockedNodeTimeStart = dateIntial()
+            lockedNodeTimeStart = dateInitial()
             changeIteration = true;
             id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
             id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
@@ -301,11 +285,11 @@ function swap(){
             id_1 = iteration_data.getIteration(currentIteration+1).pair[0]
             id_2 = iteration_data.getIteration(currentIteration+1).pair[1]
 
-            console.log(id_1, id_2)
+            //console.log(id_1, id_2)
 
-            //intial updated
-            nodes.updateNodeIntial(id_1)
-            nodes.updateNodeIntial(id_2)
+            //initial updated
+            nodes.updateNodeInitial(id_1)
+            nodes.updateNodeInitial(id_2)
 
             //moves to next iteration
             currentIteration += 1;
@@ -314,17 +298,17 @@ function swap(){
             nodes.findNode(id_1).locked = true
             nodes.findNode(id_2).locked = true
 
-            console.log(leftNodeKeys, rightNodeKeys)
+            //console.log(leftNodeKeys, rightNodeKeys)
 
             //removes key pairs from existing unlocked pairs
             leftNodeKeys.splice(leftNodeKeys.indexOf(String(id_1)), 1)
             rightNodeKeys.splice(rightNodeKeys.indexOf(String(id_2)), 1)
 
-            console.log(leftNodeKeys, rightNodeKeys)
+            //console.log(leftNodeKeys, rightNodeKeys)
 
             //resets the current swap in the iteration
             currentSwap = 0
-            currentIterationTime = dateIntial()
+            currentIterationTime = dateInitial()
 
             //update graph
             graphData()
@@ -351,7 +335,7 @@ function mouseWheel(event) { //changes speed of the swap (not implemented yet)
             if(currentSpeed > 1){
                 currentSpeed -= deltaSpeed;
                 timeIterSpeed = maxTimeIter / currentSpeed
-                currentIterationTime = dateIntial() - (whichSwap * timeIterSpeed)
+                currentIterationTime = dateInitial() - (whichSwap * timeIterSpeed)
             }
             if(currentSpeed < 1){
                 currentSpeed = 1
@@ -360,7 +344,7 @@ function mouseWheel(event) { //changes speed of the swap (not implemented yet)
             if(currentSpeed < maxSpeed){
                 currentSpeed += deltaSpeed;
                 timeIterSpeed = maxTimeIter / currentSpeed
-                currentIterationTime = dateIntial() - (whichSwap * timeIterSpeed)
+                currentIterationTime = dateInitial() - (whichSwap * timeIterSpeed)
             }
             if(currentSpeed > maxSpeed){
                 currentSpeed = maxSpeed

@@ -40,3 +40,6 @@ body, html{
     background-color: black;
     color: white;
 }
+.center-button {
+    text-align: center;
+}

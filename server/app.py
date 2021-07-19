@@ -5,6 +5,7 @@ from flask import jsonify
 import sys, os
 sys.path.append(os.path.abspath(os.path.join('..', 'directed_graph')))
 import KL_init
+import Mincut_init
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True #stops caching of web pages
@@ -26,5 +27,10 @@ def add_header(r):
 def Page():
     KL_init.main() # runs KL algorithm
     return render_template("index.html") #sends the html file (variables or data can be pased through this function)
+
+@app.route('/mincut', methods=['GET'])
+def mincut_page():
+    Mincut_init.main()
+    return render_template("mincut.html")
 
 app.run(debug=True, host='0.0.0.0', port=8080) #debug set to true to remove caching (remove when development stage is over)

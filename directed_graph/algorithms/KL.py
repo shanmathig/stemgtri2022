@@ -1,10 +1,12 @@
 import datetime
+from netlist_node import Netlist_Node
+from netlist_graph import Netlist_Graph
 import json
 import re
 
 class KL:
 
-    def __init__(self, graph, left_partition_predefined=[], debug=False):
+    def __init__(self, graph:Netlist_Graph, left_partition_predefined:list=None, debug:bool=False, write_to_json:bool=False) -> None:
         """
         Initialize the KL algorithm with necessary class variables.
         Requires Netlist_Graph class as graph parameter. 
@@ -15,9 +17,10 @@ class KL:
         self.graph_nodes = graph.get_nodes()
         self.json = {'data': []}
         self.debug = debug
+        self.write_to_json = write_to_json
 
         # create a list of nodes for the left side of the partition if one has not been specified
-        if not left_partition_predefined:
+        if left_partition_predefined is None:
             # makes list of the first half of the graph nodes in self.graph_nodes
             filter_list = list(self.graph_nodes.keys())[int(len(self.graph_nodes)/2):]
         else:
@@ -35,28 +38,28 @@ class KL:
         self.left_side = self.left_side_unmodified.copy()
         self.right_side = self.right_side_unmodified.copy()
 
-    def side_to_json(self, side):
+    def side_to_json(self, side:dict) -> dict:
         side_json = json.loads(str(side))
         side_json_modified = {}
         for x in side_json.keys():
             side_json_modified[x.replace("Node ", "")] = [y.replace("Edge connects to Node ", "") for y in side_json[x]]
         return side_json_modified
     
-    def get_left_side(self):
+    def get_left_side(self) -> dict:
         """
         Gets the nodes in the left partition.
         Returns a dictionary.
         """
         return self.left_side
 
-    def get_right_side(self):
+    def get_right_side(self) -> dict:
         """
         Gets the nodes in the right partition.
         Returns a dictionary.
         """
         return self.right_side
 
-    def calc_initial_cutsize(self):
+    def calc_initial_cutsize(self) -> int:
         """Calculates the initial cutsize so that it can later be used to calculate swap cutsize, which is relative to this."""
         # loop through all the nodes in the left partition
         for node in self.left_side.keys():
@@ -74,7 +77,7 @@ class KL:
         
         return self.cutsize
 
-    def after_swap_cutsize(self, left_node, right_node):
+    def after_swap_cutsize(self, left_node: Netlist_Node, right_node: Netlist_Node) -> int:
         """Calculates cutsize after each swap relative to the initial cutsize."""
         # loops through all the edges in the left side node that was just swapped
         for edge in self.left_side[left_node]:
@@ -96,7 +99,7 @@ class KL:
 
         return self.cutsize
 
-    def calc_costs(self, node_1, node_2=None, calc_xy_cost=False):
+    def calc_costs(self, node_1:Netlist_Node, node_2:Netlist_Node=None, calc_xy_cost:bool=False) -> tuple:
         """
         Calculates all necessary costs, including E_x - I_x, E_y - I_y, and c(x,y)
         """
@@ -130,14 +133,14 @@ class KL:
         return (external_cost - internal_cost, xy_cost)
 
     @staticmethod
-    def calc_gain(ex_minus_ix, ey_minus_iy, xy_cost):
+    def calc_gain(ex_minus_ix:float, ey_minus_iy:float, xy_cost:float) -> float:
         """
         Gain formula for KL.
         gain(x,y) = (E_x - I_x) + (E_y - I_y) - 2c(x,y)
         """
         return ex_minus_ix + ey_minus_iy - 2*xy_cost
 
-    def run(self):
+    def run(self) -> None:
         """Contains main loops used in the KL swaps."""
     
         # number to be incremented in while loop
@@ -232,20 +235,20 @@ class KL:
                 'swap_time': time_delta
             })
 
-    def write_json_data(self):
+    def write_json_data(self) -> None:
         """Writes json data to file so that it can be accessed in the frontend."""
         path = 'static/algorithm_json/KL_data.json' # relative path from working directory (in this case where the app.py is located)
         try:
             with open(path, 'w') as file:
                 json.dump(self.json, file)
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
-    def get_best_swap_from_cutsize(self):
+    def get_best_swap_from_cutsize(self) -> list:
         """Returns saved final arrays with the best swaps based on the cutsize."""
-        return self.best_swap_based_on_cutsize
+        return [self.best_swap_based_on_cutsize, self.json]
         
-    def swap_pairs(self):
+    def swap_pairs(self) -> tuple:
         """Creates class variables that store the final arrays that will be returned and calculates the initial cutsize."""
         # store the initial ordering of the left and right sides so that they can be used if the initial ordering has the best cutsize
         self.left_final = list(self.left_side.copy())
@@ -267,7 +270,8 @@ class KL:
 
         self.run()
 
-        # writes json data to file
-        self.write_json_data()
+        if self.write_to_json:
+            # writes json data to file
+            self.write_json_data()
         
         return '/static/algorithm_json/KL_data.json', [self.left_final, self.right_final]

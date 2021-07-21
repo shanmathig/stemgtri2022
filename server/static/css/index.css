@@ -43,3 +43,11 @@ body, html{
 .center-button {
     text-align: center;
 }
+.citation {
+    position: absolute;
+    left: 15px;
+    bottom: 15px;
+    font-size: 20px;
+    font-family: 'calibri';
+    font-weight: 500;
+}

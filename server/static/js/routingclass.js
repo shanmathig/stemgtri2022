@@ -6,12 +6,17 @@ class CoordinatePoint {
         this.y = y;
     }
 
-    drawPoint(strokeWeight, strokeColor, coordinateGridReference) {
+    drawPoint(strokeWeight, strokeColor, coordinateGridReference, label) {
         if (strokeColor === undefined) {
             strokeColor = 'black';
         }
+        if (label !== undefined) {
+            noStroke();
+            text(label, this.x + 30, this.y + 20);
+        }
         stroke(strokeColor).strokeWeight(strokeWeight);
         point(this.x, this.y);
+        
         stroke('black');
     }
 }
@@ -40,7 +45,7 @@ class NodePoint extends CoordinatePoint {
         }
         
         //var drawColor = (this.partOfTree) ? 'orange' : 'red';
-        super.drawPoint(20, drawColor);
+        super.drawPoint(20, drawColor, undefined, this.label);
     }
 
     addToTree(boolVal) {

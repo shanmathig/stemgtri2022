@@ -1,14 +1,26 @@
 
-def MSL(positions):
-    vertecies = len(positions)
+from operator import truediv
+import math
+from OneSteiner import OneSteiner
+
+def MST(input):
+    positions = []
+    positionsub2 =[]
+    for i in range(len(input)):
+        for l in range(len(input)):
+            positionsub2.append(math.dist(input[i], input[l]))
+        positions.append(positionsub2)
+        positionsub2 = []
+    vertecies = len(input)
     INF=999999
     selected_node = []
-    for i in range(len(positions)):
+    for i in range(len(input)):
         selected_node.append(0)
     no_edge = 0
     selected_node[0] = True
     # printing for edge and weight
-    print("Edge : Weight\n")
+    edges = []
+    sublist = []
     while (no_edge < vertecies - 1):
         minimum = INF
         a = 0
@@ -23,6 +35,10 @@ def MSL(positions):
                             a = m
                             b = n
         #prints output between the best edges to draw between all the nodes + the weight of the edge drawn between the two (0-4:5 would be an edge between node 0 and 4 with a weight of 5)
-        print(str(a) + "-" + str(b) + ":" + str(positions[a][b]))
+        sublist.append(a)
+        sublist.append(b)
+        edges.append(sublist)
+        sublist=[]
         selected_node[b] = True
         no_edge += 1
+    return OneSteiner(input, edges)

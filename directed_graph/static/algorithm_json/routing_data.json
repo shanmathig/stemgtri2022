@@ -1,0 +1,102 @@
+{
+    "data": [
+        {
+            "a<1>": {
+                "root_node": false,
+                "coordinates": [1, 5]
+            }, 
+            "b<2>": {
+                "root_node": true,
+                "coordinates": [4, 6]
+            }, 
+            "c<3>": {
+                "root_node": false,
+                "coordinates": [2, 2]
+            }, 
+            "d<4>": {
+                "root_node": false,
+                "coordinates": [3, 3]
+            }, 
+            "e<5>": {
+                "root_node": false, 
+                "coordinates": [6, 1]
+            }, 
+            "f<6>": {
+                "root_node": false,
+                "coordinates": [7, 5]
+            }, 
+            "g<7>": {
+                "root_node": false,
+                "coordinates": [8, 9]
+            }, 
+            "h<8>": {
+                "root_node": false,
+                "coordinates": [10, 8]
+            }, 
+            "i<9>": {
+                "root_node": false,
+                "coordinates": [10, 0]
+            } 
+        },
+        {
+            "MST": [
+                {
+                    "iteration": 1, 
+                    "T": ["2"],
+                    "nearest_neighbors": ["1", "4", "6"],
+                    "connection_edges": [["2", "4"], ["2", "6"], ["2", "1"]],
+                    "selected_connection": [["2", "4"]]
+                },
+                {
+                    "iteration": 2,
+                    "T": ["2", "4"],
+                    "nearest_neighbors": ["3"],
+                    "connection_edges": [["3", "4"]],
+                    "selected_connection": [["3", "4"]]
+                },
+                {
+                    "iteration": 3,
+                    "T": ["2", "4", "3"],
+                    "nearest_neighbors": ["1", "6"],
+                    "connection_edges": [["1", "3"], ["1", "4"], ["2", "6"], ["2", "1"]],
+                    "selected_connection": [["1", "3"]]
+                },
+                {
+                    "iteration": 4,
+                    "T": ["2", "4", "3", "1"],
+                    "nearest_neighbors": ["6"],
+                    "connection_edges": [["2", "6"]],
+                    "selected_connection": [["2", "6"]]
+                },
+                {
+                    "iteration": 5,
+                    "T": ["2", "4", "3", "1", "6"],
+                    "nearest_neighbors": ["5", "7"],
+                    "connection_edges": [["6", "7"], ["6", "5"], ["4", "5"]],
+                    "selected_connection": [["6", "7"]]
+                },
+                {
+                    "iteration": 6,
+                    "T": ["2", "4", "3", "1", "6", "7"],
+                    "nearest_neighbors": ["8"],
+                    "connection_edges": [["7", "8"]],
+                    "selected_connection": [["7", "8"]]
+                },
+                {
+                    "iteration": 7,
+                    "T": ["2", "4", "3", "1", "6", "7", "8"],
+                    "nearest_neighbors": ["5"],
+                    "connection_edges": [["6", "5"], ["4", "5"]],
+                    "selected_connection": [["6", "5"]]
+                },
+                {
+                    "iteration": 8,
+                    "T": ["2", "4", "3", "1", "6", "7", "8", "5"],
+                    "nearest_neighbors": ["9"], 
+                    "connection_edges": [["5", "9"]],
+                    "selected_connection": [["5", "9"]]
+                }
+            ]
+        }
+    ]
+}

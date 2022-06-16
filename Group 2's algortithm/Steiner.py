@@ -22,6 +22,7 @@ def MSL(positions):
                             minimum = positions[m][n]
                             a = m
                             b = n
-        print(str(a) + str(b) + ":" + str(positions[a][b]))
+        #prints output between the best edges to draw between all the nodes + the weight of the edge drawn between the two (0-4:5 would be an edge between node 0 and 4 with a weight of 5)
+        print(str(a) + "-" + str(b) + ":" + str(positions[a][b]))
         selected_node[b] = True
         no_edge += 1

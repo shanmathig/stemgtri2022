@@ -3,6 +3,7 @@ from flask import jsonify
 
 # import algorithms
 import sys, os
+sys.path.append(os.path.abspath('directed_graph'))
 sys.path.append(os.path.abspath(os.path.join('..', 'directed_graph')))
 import KL_init
 import Mincut_init
@@ -37,5 +38,10 @@ def mincut_page():
 def routing_page():
     #Mincut_init.main()
     return render_template("routing.html")
+
+@app.route('/steiner', methods=['GET'])
+def steiner_page():
+    #Mincut_init.main()
+    return render_template("steiner.html")
 
 app.run(debug=True, host='0.0.0.0', port=8080) #debug set to true to remove caching (remove when development stage is over)

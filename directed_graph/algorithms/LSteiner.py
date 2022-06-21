@@ -1,4 +1,7 @@
 import math
+from operator import truediv
+
+from matplotlib.pyplot import connect
 #i could just use the chip/node/wire thing but 
 
 emptychar = "."
@@ -27,13 +30,20 @@ class Point:
     def GetWireLengthAndPoint(self,other):
         return {'wirelength' : self.DiffX(other) + self.DiffY(other),'point' : other}
 
+    #to compare two points
+    def equals(self,other):
+        if self.xVal == other.xVal and self.yVal == other.yVal:
+            return True
+        return False
 class Wire:
     start : Point
     end : Point
     bend : Point
+    ends : list
     def __init__(self,p1,p2,grid):
         self.start = p1
         self.end = p2
+        self.ends = [p1,p2]
         self.bend = Point(p1.xVal,p2.yVal)
         grid.wires.append(self)
 
@@ -43,6 +53,11 @@ class Wire:
             self.bend = Point(self.end.xVal,self.start.yVal)
         elif self.bend == Point(self.end.xVal,self.start.yVal):
             self.bend = Point(self.start.xVal,self.end.yVal)
+    
+    def wequals(self,other):
+        if self.start.equals(other.start) and self.end.equals(other.end) and self.bend.equals(other.end):
+            return True
+        return False
     
 
 class Grid:
@@ -92,15 +107,33 @@ class Grid:
         mslpts = []
         activept = rootpt
         mslpts.append(activept)
-
-        b = self.makeBranch(activept)
-        activept.append(b.end)
+        templist = []
+        for i in self.points:
+            if not i.equals(activept):
+                templist.append(i)
+        print(templist)
+        while len(templist) > 1:
+            #evaluates the closest point based on the criteria (WIP_)s
+            closest = maxval
+            pointone = Point(0,0)
+            pointtwo = Point(0,0)
+            for pt1 in templist:
+                for pt2 in mslpts:
+                    #will change this function to check for the point that best meets the criteria.
+                    if pt1.GetWireLength(pt2) < closest:
+                        closest = pt1.GetWireLength(pt2)
+                        pointone = pt1
+                        pointtwo = pt2
+            Wire(pointone,pointtwo,self)
+            templist.remove(pointone)
+            mslpts.append(pointtwo)
+        print(self.wires)  
+        #activept.append(b.end)
         
-
-
-
     #Supplementary functions to help make the msl
     #work in progress
+
+    #this entire mess is going to be improved upon later
 
     #makes a wire from a point with some conditions:
     #From the closest three points, the point will connect with the other point...
@@ -191,7 +224,7 @@ class Grid:
                 elif cx < ax and cx < bx:
                     closestPoint = c3[2]
         return Wire(activepoint,closestPoint,self)
-    #
+    #manage the wiring of this somewhere else
 
     #gets the closest three points that aren't attached to one another
     def GetClosestThree(self,point):
@@ -235,8 +268,29 @@ class Grid:
             closethree.append(wl[i]['point'])
             #print (wl[i]['point'].PrintPoint())
         return closethree
+    
+    #now for the big stuff
+    def Lsteiner(self):
+
+        # space is saved whenever the bend point is inside one of the other wires (between another bend point and 
+        # either the start or end point of the first wire)
+        # find out which bending saves more space
+        # repeat this until no further optimizations are needed
+        for value in self.wires:
+            connectedwires = []
+            for p in value.ends:
+                for w in self.wires:
+                    for wp in w.ends:
+                        if wp.equals(p) and not(w.wequals(value)):
+                            connectedwires.append(w)
+            for c in connectedwires:
+                if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
+                    value.changeBend()
+                    if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
+                        value.changeBend()
 
 
+#h
 #points
 g = Grid(11,11)
 g.Enable(1,5)
@@ -254,4 +308,4 @@ g.PrintPointList()
 g.makeBranch(Point(1,5))
 g.makeBranch(Point(4,4))
 
-
+g.makeMSL(Point(1,5))

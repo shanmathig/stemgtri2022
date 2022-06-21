@@ -1,7 +1,6 @@
 import pandas as pd
 import re
 from MST import MST
-from OneSteiner import OneSteiner
 def parser():
     df=pd.read_csv('InputText.txt', sep=":", header=None, names = ["Name","Location"]) #import values from the file
     #convert DataFrame pandas gives the df into nested lists
@@ -19,5 +18,4 @@ def parser():
             Temp_Positions.append(int(Stripped_Positions[i][l]))
         Final_List_Positions.append(Temp_Positions)
         Temp_Positions = []
-        int_MST = MST(Final_List_Positions)
-    return OneSteiner(Final_List_Positions, int_MST)
+    return Final_List_Positions

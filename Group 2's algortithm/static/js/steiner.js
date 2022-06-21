@@ -5,13 +5,6 @@ var yStep;
 var positions = [];
 let w = window.innerWidth;
 let h = window.innerHeight;
-//var listOfNodes= [];
-
-// function parser(){
-//   $.ajax({
-//     url: "mycode\Group 2's algortithm/"
-//   })
-// }
 
 
 var myPoint = new Point(1, 5)
@@ -25,7 +18,7 @@ var myNodeG = new Node(8, 1, "NOT", false)
 var myNodeH = new Node(10, 2, "OR", true)
 var myNodeI = new Node(10, 10, "OR", true)
 
-  
+
 function setup(){
     createCanvas(w+5, h+5);
 

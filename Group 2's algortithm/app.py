@@ -8,4 +8,4 @@ app = Flask(__name__)
 def __init__():
     Input = parser()
     Output = OneSteiner(Input)
-    return render_template("steiner.html")
+    return render_template("steiner.html", data=Output)

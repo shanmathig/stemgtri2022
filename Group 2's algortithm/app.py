@@ -1,11 +1,11 @@
 
-from flask import Flask
+from flask import Flask, render_template
 from parser import parser
 from OneSteiner import OneSteiner
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=['get'])
 def __init__():
     Input = parser()
     Output = OneSteiner(Input)
-    return(str(Output))
+    return render_template("steiner.html")

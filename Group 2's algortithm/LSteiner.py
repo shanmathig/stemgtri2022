@@ -2,6 +2,7 @@ import math
 from operator import truediv
 from time import sleep
 from matplotlib.pyplot import connect
+import MST
 #i could just use the chip/node/wire thing but 
 
 emptychar = "."
@@ -114,103 +115,7 @@ class Grid:
             print(i)
             p.PrintWire()
     
-    def MakeMSL(self,rootpt):
-        psystem = []
-        psystem.append(rootpt)
-        temppts = []
-        for p in self.points:
-            if not p.equals(rootpt):
-                temppts.append(p)
-        while len(temppts) > 0:
-            closest = maxval
-            pointone = Point(0,0)
-            pointtwo = Point(0,0)
-            for pt1 in psystem:
-                self.closest(pt1,psystem).PrintPoint()
-                    #will change this function to check for the point that best meets the criteria.
-                if pt1.GetWireLength(self.closest(pt1,psystem)) < closest:
-                    closest = pt1.GetWireLength(self.closest(pt1,psystem))
-                    pointone = pt1
-                    pointtwo = self.closest(pt1,psystem)
-                    #pointtwo.PrintPoint()
-                    
-            
-            Wire(pointone,pointtwo,self)
-            print("wire made")
-            
-
-            for i in temppts:
-                if self.closest(pointone,psystem).equals(i):
-                    try:
-                        temppts.remove(i)
-                        print("got it")
-                    except ValueError:
-                        print("help me")
-            if not pointtwo in psystem:
-                psystem.append(pointtwo)
-            for ps in psystem:
-                #print("points")
-                ps.PrintPoint()
-                #print("---------")
-            #sleep(10)
-            #try:
-                #temppts.remove(pointtwo)
-           # except ValueError:
-                #print("NG")
-               # pass
-            
-            #if len(shortpt) > 1:
-            
-    #returns the closest point based on rectilinear distance
-    #if two or more points have the same rectilinear distance, returns the point with the largest difference in y value
-    #if two or more points have the same rectilinear distance and difference in y value, returns the point that's further to the right
-    def closest(self,point,ommissions):
-        leastlen = maxval
-        shortestwl = []
-        temppts = []
-        for o in self.points:
-            
-            if not o in ommissions and not o in temppts:
-                temppts.append(o)
-                    
-        for p in temppts:
-            if point.GetWireLength(p) < leastlen and not point.equals(p):
-                leastlen = point.GetWireLength(p)
-                shortestwl.clear
-                
-                shortestwl.append(p)
-            elif point.GetWireLength(p) == leastlen and not point.equals(p):
-                
-                shortestwl.append(p)
-        if len(shortestwl) < 1:
-            return shortestwl[0]
-        else:
-            shortesty = []
-            leasty = 0
-            for p in shortestwl:
-                if point.DiffY(p) > leasty and not point.equals(p):
-                    leasty = point.DiffY(p)
-                    shortesty.clear
-                    
-                    shortesty.append(p)
-                elif point.DiffY(p) == leasty and not point.equals(p):
-                    
-                    shortesty.append(p)
-            if len(shortesty) < 1:
-                return shortesty[0]
-            else:
-                shortestx = []
-                leastx = 0
-                for p in shortesty:
-                    if p.xVal > leastx and not point.equals(p):
-                        leastx = p.xVal
-                        shortestx.clear
-                        
-                        shortestx.append(p)
-                    elif p.xVal == leastx and not point.equals(p):
-                        
-                        shortestx.append(p)
-                return shortestx[0]
+    
             
 
     #now for the big stuff
@@ -233,6 +138,10 @@ class Grid:
                     if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
                         value.changeBend()
 
+def convertlist(pts):
+    ptlist = []
+    for i in pts:
+        ptlist.append([i.xVal,i.yVal])
 
 #h
 #points
@@ -249,7 +158,7 @@ g.Enable(10,10)
 g.PrintGraph()
 g.UpdatePoints()
 #g.PrintPointList()
-g.MakeMSL(Point(1,5))
+MST.MST(convertlist(g.points))
 g.PrintWireList()
 g.Lsteiner()
 g.PrintWireList()

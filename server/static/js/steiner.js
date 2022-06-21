@@ -5,6 +5,15 @@ var yStep;
 var positions = [];
 let w = window.innerWidth;
 let h = window.innerHeight;
+//var listOfNodes= [];
+
+// function parser(){
+//   $.ajax({
+//     url: "mycode\Group 2's algortithm/"
+//   })
+// }
+
+
 var myPoint = new Point(1, 5)
 var myNodeA = new Node(1, 5, "OR", true)
 var myNodeB = new Node(4, 4, "OR", true)
@@ -42,7 +51,9 @@ function draw(){
   for(var i = 0; i < positions.length; i++){ 
     ellipse(positions[i].x, positions[i].y, 5, 5);
   }
-
+  // for(var i = 0; i < listOfNodes.length; i++){ 
+  //   listOfNodes[i].createGrid();
+  // }
 myNodeA.createGrid();
 myNodeB.createGrid();
 myNodeC.createGrid();
@@ -52,5 +63,7 @@ myNodeF.createGrid();
 myNodeG.createGrid();
 myNodeH.createGrid();
 myNodeI.createGrid();
+
+
 }
 

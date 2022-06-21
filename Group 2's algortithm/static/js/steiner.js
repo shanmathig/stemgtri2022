@@ -4,7 +4,8 @@ var xStep;
 var yStep;
 var positions = [];
 let w = window.innerWidth;
-let h = window.innerHeight;
+let h = window.innerHeight
+
 
 
 var myPoint = new Point(1, 5)
@@ -40,6 +41,8 @@ function setup(){
 function draw(){
   
   fill(250, 100, 100);
+  fill(255,0,0);
+  
 
   for(var i = 0; i < positions.length; i++){ 
     ellipse(positions[i].x, positions[i].y, 5, 5);
@@ -47,16 +50,26 @@ function draw(){
   // for(var i = 0; i < listOfNodes.length; i++){ 
   //   listOfNodes[i].createGrid();
   // }
-myNodeA.createGrid();
-myNodeB.createGrid();
-myNodeC.createGrid();
-myNodeD.createGrid();
-myNodeE.createGrid();
-myNodeF.createGrid();
-myNodeG.createGrid();
-myNodeH.createGrid();
-myNodeI.createGrid();
-
-
+// myNodeA.createGrid();
+// myNodeB.createGrid();
+// myNodeC.createGrid();
+// myNodeD.createGrid();
+// myNodeE.createGrid();
+// myNodeF.createGrid();
+// myNodeG.createGrid();
+// myNodeH.createGrid();
+// myNodeI.createGrid();
+var nodeinit = nodelistinit[0];
+var nodefinal = nodelistfinal[0];
+for (var i = 0; i< nodefinal.length; i++){
+  fill('black');
+  ellipse((w/10)*nodefinal[i][0], h-(h/10)*nodefinal[i][1], 20, 20);
+}
+for (var i = 0; i< nodeinit.length; i++){
+  fill('red');
+  ellipse((w/10)*nodeinit[i][0], h-(h/10)*nodeinit[i][1], 20, 20);
+} 
+fill("black");
+text(nodeinit, 50, 50);
 }
 

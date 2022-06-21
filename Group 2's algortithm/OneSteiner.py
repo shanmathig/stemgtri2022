@@ -6,8 +6,6 @@ def OneSteiner(Nodes):
     Wire_Length_Initial = 0
     for i in range(len(Edges)):
         Wire_Length_Initial = Wire_Length_Initial + abs(Nodes[Edges[i][0]][0]-Nodes[Edges[i][1]][0]) + abs(Nodes[Edges[i][0]][1]-Nodes[Edges[i][1]][1])
-    print("Initial wirelength: "+ str(Wire_Length_Initial))
-    print("Initial routing: " + str(Edges))
     #Compute all possible additional points
     Temp_Positions = []
     Newnodes = []
@@ -27,7 +25,6 @@ def OneSteiner(Nodes):
                 if Temp_Positions not in Nodes:
                     Newnodes.append(Temp_Positions)
             Temp_Positions = []
-    print("New possible nodes" + str(Newnodes))
     #Recalculate all possible MSLs with 1 extra possible point from the point pool we calculated
     Temp_Positions = Nodes
     Wire_Length_Best=Wire_Length_Initial
@@ -44,7 +41,6 @@ def OneSteiner(Nodes):
                 Wire_Length_Best=Wire_Length_Final
                 Best_Node = Newnodes[i]
             Temp_Positions.pop()
-        print(str(Best_Node))
         if (Best_Node == []):
             Output = resulting_Nodes(Temp_Positions)
             return Output

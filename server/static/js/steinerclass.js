@@ -45,21 +45,15 @@ class Node extends Point {
       super.drawPoint(20, drawColor, undefined, this.type);
   
     }
-    drawEdge() {
-        for (var i = 0; i < this.edges.length; i++) {
-            var edgeNodeReference = coordinateGridReference.getNodePoint(this.edges[i]); 
-            line(this.x, this.y, edgeNodeReference.x, edgeNodeReference.y);
-    }
-}
+    
     drawUnderlyingGrid(){
-        line((w/10)*this.x, 0, (w/10)*this.x, h)
-        line(0,(h/10)*this.y, w,(h/10)*this.y)
+        line((w/10)*this.x, 0, (w/10)*this.x, h);
+        line(0,(h/10)*this.y, w,(h/10)*this.y);
+
     }
     createGrid(){
         this.drawPoint();
-        this.drawUnderlyingGrid();  
-        
-
+        this.drawUnderlyingGrid();
     }
 
 }

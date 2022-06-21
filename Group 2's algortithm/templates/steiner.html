@@ -13,10 +13,12 @@
 		<!-- <script src="/static/js/routingclass.js"></script>
 		<script src="/static/js/helpers.js"></script> -->
         <script src="/static/js/steinerclass.js"></script>
-
-        <script src="/static/js/steiner.js">
-			var listofnodes = {{ data }}
+		<script type="text/javascript">
+			var nodelistfinal = {{ data.f }}
+			var nodelistinit = {{ data.i }}
+			var msti = {{ data.msti }}
 		</script>
+        <script src="/static/js/steiner.js"></script>
         <!-- Main text -->
         <div id="overTheCanvas">
         	<h1 id="title">Steiner Routing Algorithm</h1>   	

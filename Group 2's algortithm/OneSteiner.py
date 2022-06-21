@@ -1,6 +1,7 @@
 from MST import MST
 from Result import resulting_Nodes
-def OneSteiner(Nodes, Edges):
+def OneSteiner(Nodes):
+    Edges = MST(Nodes)
     #Compute current wire length
     Wire_Length_Initial = 0
     for i in range(len(Edges)):
@@ -45,6 +46,8 @@ def OneSteiner(Nodes, Edges):
             Temp_Positions.pop()
         print(str(Best_Node))
         if (Best_Node == []):
-            return resulting_Nodes(Temp_Positions)
+            Output = resulting_Nodes(Temp_Positions)
+            return Output
         Temp_Positions.append(Best_Node)
-    return resulting_Nodes(Temp_Positions)
+    Output = resulting_Nodes(Temp_Positions)
+    return Output

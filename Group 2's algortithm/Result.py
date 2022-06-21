@@ -11,4 +11,4 @@ def resulting_Nodes(Final_Nodes):
     for i in range(len(Newedges)):
         Wire_Length_Final = Wire_Length_Final + abs(Final_Nodes[Newedges[i][0]][0]-Final_Nodes[Newedges[i][1]][0]) + abs(Final_Nodes[Newedges[i][0]][1]-Final_Nodes[Newedges[i][1]][1])
     print(Wire_Length_Final)
-    return()
+    return Final_Nodes

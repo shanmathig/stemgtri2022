@@ -6,20 +6,6 @@ var positions = [];
 let w = window.innerWidth;
 let h = window.innerHeight
 
-
-
-var myPoint = new Point(1, 5)
-var myNodeA = new Node(1, 5, "OR", true)
-var myNodeB = new Node(4, 4, "OR", true)
-var myNodeC = new Node(2, 8, "AND", false)
-var myNodeD = new Node(3, 7, "OR", true)
-var myNodeE = new Node(5, 9, "NOT", false)
-var myNodeF = new Node(7, 5, "OR", true)
-var myNodeG = new Node(8, 1, "NOT", false)
-var myNodeH = new Node(10, 2, "OR", true)
-var myNodeI = new Node(10, 10, "OR", true)
-
-
 function setup(){
     createCanvas(w+5, h+5);
 
@@ -43,33 +29,41 @@ function draw(){
   fill(250, 100, 100);
   fill(255,0,0);
   
-
+stroke("black")
   for(var i = 0; i < positions.length; i++){ 
     ellipse(positions[i].x, positions[i].y, 5, 5);
   }
-  // for(var i = 0; i < listOfNodes.length; i++){ 
-  //   listOfNodes[i].createGrid();
-  // }
-// myNodeA.createGrid();
-// myNodeB.createGrid();
-// myNodeC.createGrid();
-// myNodeD.createGrid();
-// myNodeE.createGrid();
-// myNodeF.createGrid();
-// myNodeG.createGrid();
-// myNodeH.createGrid();
-// myNodeI.createGrid();
+
 var nodeinit = nodelistinit[0];
-var nodefinal = nodelistfinal[0];
-for (var i = 0; i< nodefinal.length; i++){
-  fill('black');
-  ellipse((w/10)*nodefinal[i][0], h-(h/10)*nodefinal[i][1], 20, 20);
-}
+// var nodefinal = nodelistfinal[0];
+// for (var i = 0; i< nodefinal.length; i++){
+//   fill('black');
+//   ellipse((w/10)*nodefinal[i][0], h-(h/10)*nodefinal[i][1], 20, 20);
+// }
 for (var i = 0; i< nodeinit.length; i++){
   fill('red');
-  ellipse((w/10)*nodeinit[i][0], h-(h/10)*nodeinit[i][1], 20, 20);
+  ellipse(xStep*nodeinit[i][0], h-(yStep*nodeinit[i][1]), 20, 20);
 } 
 fill("black");
 text(nodeinit, 50, 50);
+var msti2 = msti[0]
+var x = 50;
+var y = 50;
+stroke("black")
+for(var i = 0; i < nodeinit.length; i++){
+  line(xStep*nodeinit[i][0], 0, xStep*nodeinit[i][0], h)
+  line(0,h-(yStep*nodeinit[i][1]), w,h-(yStep*nodeinit[i][1]))
+
 }
+stroke("red")
+for (var i = 0; i< msti2.length; i++){
+  mstilines = line(xStep*nodeinit[msti2[i][0]][0], h-(yStep*nodeinit[msti2[i][0]][1]), xStep*nodeinit[msti2[i][1]][0], h-(yStep*nodeinit[msti2[i][1]][1]))
+  
+} 
+mstilines.show()
+text(msti2, 70, 50);
+
+}
+
+
 

@@ -21,3 +21,9 @@ cd server && python app.py
 ``` 
 
 To edit any of the visuals through p5, go to `static/js/index.js` and edit as so. A full documentation and tutorials can be found on the p5.js [website](https://p5js.org/).
+
+## Get Started
+python -m venv .venv
+Set-ExecutionPolicy-ExecutionPolicy Bypass-Scope CurrentUser
+.\.venv\Scripts\activate.ps1
+Ctrl + Shift + I

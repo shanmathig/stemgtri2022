@@ -291,6 +291,7 @@ class Grid:
 
 
 #h
+#
 #points
 g = Grid(11,11)
 g.Enable(1,5)

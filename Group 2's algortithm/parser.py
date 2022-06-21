@@ -1,23 +1,23 @@
 import pandas as pd
-import math 
 import re
 from MST import MST
+from OneSteiner import OneSteiner
 def parser():
-    df=pd.read_csv('TestText.txt', sep=":", header=None, names = ["Name","Location"]) #import values from the file
+    df=pd.read_csv('InputText.txt', sep=":", header=None, names = ["Name","Location"]) #import values from the file
     #convert DataFrame pandas gives the df into nested lists
-    positions = df['Location'].values.tolist()
-    positions2 = []
-    for i in range(len(positions)):
-        positions[i] = re.sub("[(]","[",positions[i])
-        positions[i] = re.sub("[)]","]",positions[i])
-        positions2.append(positions[i])
-    positionlist = [i.strip("[]").split(",") for i in positions2]
-    vertecies=len(positionlist) #saving this for later
-    position3 = []
-    positionsub = []
-    for i in range(len(positionlist)):
-        for l in range(len(positionlist[i])):
-            positionsub.append(int(positionlist[i][l]))
-        position3.append(positionsub)
-        positionsub = []
-    return MST(position3)
+    String_Positions = df['Location'].values.tolist()
+    List_Positions = []
+    for i in range(len(String_Positions)):
+        String_Positions[i] = re.sub("[(]","[",String_Positions[i])
+        String_Positions[i] = re.sub("[)]","]",String_Positions[i])
+        List_Positions.append(String_Positions[i])
+    Stripped_Positions = [i.strip("[]").split(",") for i in List_Positions]
+    Final_List_Positions = []
+    Temp_Positions = []
+    for i in range(len(Stripped_Positions)):
+        for l in range(len(Stripped_Positions[i])):
+            Temp_Positions.append(int(Stripped_Positions[i][l]))
+        Final_List_Positions.append(Temp_Positions)
+        Temp_Positions = []
+        int_MST = MST(Final_List_Positions)
+    return OneSteiner(Final_List_Positions, int_MST)

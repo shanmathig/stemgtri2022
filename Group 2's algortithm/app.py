@@ -1,8 +1,6 @@
 
 from flask import Flask
-import re
 from parser import parser
-import math
 
 app = Flask(__name__)
 

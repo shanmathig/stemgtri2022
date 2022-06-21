@@ -1,44 +1,41 @@
-
-from operator import truediv
-import math
-from OneSteiner import OneSteiner
-
-def MST(input):
-    positions = []
-    positionsub2 =[]
-    for i in range(len(input)):
-        for l in range(len(input)):
-            positionsub2.append(math.dist(input[i], input[l]))
-        positions.append(positionsub2)
-        positionsub2 = []
-    vertecies = len(input)
+def MST(Nodes):
+    Rect_Dist_Matrix = []
+    Temp_Dist =[]
+    for i in range(len(Nodes)):
+        for l in range(len(Nodes)):
+            rect_distance = abs(Nodes[i][0]-Nodes[l][0]) + abs(Nodes[i][1]-Nodes[l][1])
+            Temp_Dist.append(rect_distance)
+        Rect_Dist_Matrix.append(Temp_Dist)
+        Temp_Dist = []
+    Vertex_Count = len(Nodes)
     INF=999999
-    selected_node = []
-    for i in range(len(input)):
-        selected_node.append(0)
-    no_edge = 0
-    selected_node[0] = True
+    Selected_Node = []
+    for i in range(len(Nodes)):
+        Selected_Node.append(0)
+    No_Edge = 0
+    Selected_Node[0] = True
     # printing for edge and weight
-    edges = []
-    sublist = []
-    while (no_edge < vertecies - 1):
+    Final_Edges = []
+    Temp_Edges = []
+    while (No_Edge < Vertex_Count - 1):
         minimum = INF
         a = 0
         b = 0
-        for m in range(vertecies):
-           if selected_node[m]:
-               for n in range(vertecies):
-                  if ((not selected_node[n]) and positions[m][n]):  
+        for m in range(Vertex_Count):
+           if Selected_Node[m]:
+               for n in range(Vertex_Count):
+                  if ((not Selected_Node[n]) and Rect_Dist_Matrix[m][n]):  
                         # not in selected and there is an edge
-                        if minimum > positions[m][n]:
-                            minimum = positions[m][n]
+                        if minimum > Rect_Dist_Matrix[m][n]:
+                            minimum = Rect_Dist_Matrix[m][n]
                             a = m
                             b = n
         #prints output between the best edges to draw between all the nodes + the weight of the edge drawn between the two (0-4:5 would be an edge between node 0 and 4 with a weight of 5)
-        sublist.append(a)
-        sublist.append(b)
-        edges.append(sublist)
-        sublist=[]
-        selected_node[b] = True
-        no_edge += 1
-    return OneSteiner(input, edges)
+        Temp_Edges.append(a)
+        Temp_Edges.append(b)
+        Final_Edges.append(Temp_Edges)
+        Temp_Edges=[]
+        Selected_Node[b] = True
+        No_Edge += 1
+
+    return Final_Edges

@@ -11,24 +11,22 @@ def OneSteiner(Nodes):
     Newnodes = []
     for i in range(len(Edges)):
         for j in range(len(Edges)):
-            First_Point_x = Nodes[Edges[i][0]][0]
-            First_Point_y = Nodes[Edges[i][0]][1]
-            Second_Point_x = Nodes[Edges[j][1]][0]
-            Second_Point_y = Nodes[Edges[j][1]][1]
-            Temp_Positions = [First_Point_x,Second_Point_y]
+            Temp_Positions = [Nodes[Edges[i][0]][0],Nodes[Edges[j][1]][1]]
             if Temp_Positions not in Newnodes:
-                Newnodes.append(Temp_Positions)
+                if Temp_Positions not in Nodes:
+                    Newnodes.append(Temp_Positions)
             Temp_Positions = []
-            Temp_Positions = [Second_Point_x,First_Point_y]
+            Temp_Positions = [Nodes[Edges[j][1]][0],Nodes[Edges[i][0]][1]]
             Newnodes.append(Temp_Positions)
             if Temp_Positions not in Newnodes:
                 if Temp_Positions not in Nodes:
                     Newnodes.append(Temp_Positions)
             Temp_Positions = []
-    #Recalculate all possible MSLs with 1 extra possible point from the point pool we calculated
+    #Recalculate all possible MSLs with all extra possible points from the point pool we calculated (1 at a time)
     Temp_Positions = Nodes
     Wire_Length_Best=Wire_Length_Initial
     Best_Node = []
+    Added_Nodes = []
     for l in range(len(Newnodes)):
         Best_Node = []   
         for i in range(len(Newnodes)):
@@ -42,8 +40,9 @@ def OneSteiner(Nodes):
                 Best_Node = Newnodes[i]
             Temp_Positions.pop()
         if (Best_Node == []):
-            Output = resulting_Nodes(Temp_Positions)
-            return Output
+            resulting_Nodes(Temp_Positions)
+            return Added_Nodes
         Temp_Positions.append(Best_Node)
-    Output = resulting_Nodes(Temp_Positions)
-    return Output
+        Added_Nodes.append(Best_Node)
+    resulting_Nodes(Temp_Positions)
+    return Added_Nodes

@@ -31,13 +31,10 @@ def OneSteiner(Nodes):
         Best_Node = []   
         for i in range(len(Newnodes)):
             Temp_Positions.append(Newnodes[i])
-            New_Edges = MST(Temp_Positions)
-            Wire_Length_Final = 0
-            for j in range(len(New_Edges)): 
-                Wire_Length_Final = Wire_Length_Final + abs(Temp_Positions[New_Edges[j][0]][0]-Temp_Positions[New_Edges[j][1]][0]) + abs(Temp_Positions[New_Edges[j][0]][1]-Temp_Positions[New_Edges[j][1]][1])
+            Wire_Length_Final = Eval(Temp_Positions)
             if(Wire_Length_Final<Wire_Length_Best):
                 Wire_Length_Best=Wire_Length_Final
-                Best_Node = Newnodes[i]
+                Best_Node = Newnodes[i] 
             Temp_Positions.pop()
         if (Best_Node == []):
             resulting_Nodes(Temp_Positions)
@@ -46,3 +43,9 @@ def OneSteiner(Nodes):
         Added_Nodes.append(Best_Node)
     resulting_Nodes(Temp_Positions)
     return Added_Nodes
+def Eval(Temp_Positions):
+    New_Edges = MST(Temp_Positions)
+    Wire_Length_Final = 0
+    for j in range(len(New_Edges)): 
+        Wire_Length_Final = Wire_Length_Final + abs(Temp_Positions[New_Edges[j][0]][0]-Temp_Positions[New_Edges[j][1]][0]) + abs(Temp_Positions[New_Edges[j][0]][1]-Temp_Positions[New_Edges[j][1]][1])
+    return(Wire_Length_Final)

@@ -1,3 +1,34 @@
+"""
+HOW TO USE
+
+Import everything
+
+Classes:
+Point(int x, int y)
+Wire(Point start, Point end, Grid grid)
+Grid(int xlength, int ylength) because of the way lists work in python and coding in general, add one to each length,
+for example if you wanted to make a 4x5 grid you would instantiate it as Grid(5,6)
+Important Methods:
+
+Part of the Grid class:
+Enable(int x,int y) : enables a point on the grid. You should use UpdatePoints() right after to add the points to the grid's point list
+UpdatePoints() : Iterates through the grid and adds all enabled points to the point list
+(mainly used for debugging)
+PrintGraph() : prints out the graph
+PrintPointList() : prints out all the points on the graph
+PrintWireList() : Prints out the start, end, and bend points of each wire
+Lsteiner() : Runs the LSteiner algorithm on a grid with wires and nodes 
+
+Not Part Of A Class:
+convertlist(list points) : converts a list of Point objects into a nested array
+wiremaker(list points, list mst, list grid) : takes a list of points and MST wiring and places the wires on the grid
+convertwirebendstonodes(Grid grid) : takes all the wires of the grid and turns their bend points into a nested array
+
+
+"""
+
+
+
 import math
 from operator import truediv
 from time import sleep
@@ -154,7 +185,6 @@ class Grid:
                     #value.changeBend()
 
 
-
 def convertlist(pts):
     ptlist = []
     for i in pts:
@@ -165,8 +195,18 @@ def wiremaker(ptarr,mstlist,grid):
     for ptpairs in mstlist:
         Wire(Point(ptarr[ptpairs[0]][0],ptarr[ptpairs[0]][1]),Point(ptarr[ptpairs[1]][0],ptarr[ptpairs[1]][1]),grid)
         
+def convertwirebendstonodes(grid):
+    wirebends = []
+    for wire in grid.wires:
+        wirebends.append(wire.bend)
+
 
 #points
+
+#these are all for the purpose of testing
+#thus they are not really needed
+
+"""
 g = Grid(11,11)
 g.Enable(1,5)
 g.Enable(4,4)
@@ -191,3 +231,5 @@ wiremaker(convertlist(g.points),MST.MST(convertlist(g.points)),g)
 g.Lsteiner()
 g.PrintWireList()
 #print (parser.parser())
+convertwirebendstonodes(g)
+"""

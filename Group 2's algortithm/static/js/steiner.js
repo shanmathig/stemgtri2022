@@ -23,7 +23,9 @@ function setup(){
   }
  
 }
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 function draw(){
   
   fill(250, 100, 100);
@@ -51,10 +53,12 @@ var x = 50;
 var y = 50;
 stroke("black")
 for(var i = 0; i < nodeinit.length; i++){
+  console.log("hello")
   line(xStep*nodeinit[i][0], 0, xStep*nodeinit[i][0], h)
   line(0,h-(yStep*nodeinit[i][1]), w,h-(yStep*nodeinit[i][1]))
 
 }
+sleep(5000).then(() => { console.log("World!"); });
 stroke("red")
 for (var i = 0; i< msti2.length; i++){
   mstilines = line(xStep*nodeinit[msti2[i][0]][0], h-(yStep*nodeinit[msti2[i][0]][1]), xStep*nodeinit[msti2[i][1]][0], h-(yStep*nodeinit[msti2[i][1]][1]))

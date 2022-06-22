@@ -3,7 +3,7 @@ from operator import truediv
 from time import sleep
 from matplotlib.pyplot import connect
 import MST
-#i could just use the chip/node/wire thing but 
+import parser
 
 emptychar = "."
 pointchar = "o"
@@ -115,7 +115,7 @@ class Grid:
             print(i)
             p.PrintWire()
     
-    
+
             
 
     #now for the big stuff
@@ -124,7 +124,7 @@ class Grid:
         # space is saved whenever the bend point is inside one of the other wires (between another bend point and 
         # either the start or end point of the first wire)
         # find out which bending saves more space
-        # repeat this until no further optimizations are needed
+        
         for value in self.wires:
             connectedwires = []
             for p in value.ends:
@@ -133,17 +133,24 @@ class Grid:
                         if wp.equals(p) and not(w.wequals(value)):
                             connectedwires.append(w)
             for c in connectedwires:
+                #if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
+                value.changeBend()
                 if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
                     value.changeBend()
-                    if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
-                        value.changeBend()
+
+
 
 def convertlist(pts):
     ptlist = []
     for i in pts:
         ptlist.append([i.xVal,i.yVal])
+    return ptlist
 
-#h
+def wiremaker(ptarr,mstlist,grid):
+    for ptpairs in mstlist:
+        Wire(Point(ptarr[ptpairs[0]][0],ptarr[ptpairs[0]][1]),Point(ptarr[ptpairs[1]][0],ptarr[ptpairs[1]][1]),grid)
+        
+
 #points
 g = Grid(11,11)
 g.Enable(1,5)
@@ -158,7 +165,14 @@ g.Enable(10,10)
 g.PrintGraph()
 g.UpdatePoints()
 #g.PrintPointList()
-MST.MST(convertlist(g.points))
+print(convertlist(g.points))
+print(MST.MST(convertlist(g.points)))
+
 g.PrintWireList()
 g.Lsteiner()
 g.PrintWireList()
+wiremaker(convertlist(g.points),MST.MST(convertlist(g.points)),g)
+g.PrintWireList()
+g.Lsteiner()
+g.PrintWireList()
+#print (parser.parser())

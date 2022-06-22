@@ -10,7 +10,7 @@ def __init__():
     data = { "f":[], "i":[], "msti":[], "msts":[] }
     data["i"].append(parser())
     data["f"].append(OneSteiner(parser()))
-    data["msti"].append(parser())
+    data["msti"].append(MST(parser()))
     Nodes_Standin = parser()
     for i in range(len(OneSteiner(parser()))):
         Nodes_Standin.append(OneSteiner(parser())[i])

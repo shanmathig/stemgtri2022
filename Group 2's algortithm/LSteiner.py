@@ -50,13 +50,13 @@ class Wire:
 
     #changes the bend
     def changeBend(self):
-        if self.bend == Point(self.start.xVal,self.end.yVal):
+        if self.bend.equals(Point(self.start.xVal,self.end.yVal)):
             self.bend = Point(self.end.xVal,self.start.yVal)
-        elif self.bend == Point(self.end.xVal,self.start.yVal):
+        elif self.bend.equals(Point(self.end.xVal,self.start.yVal)):
             self.bend = Point(self.start.xVal,self.end.yVal)
     
     def wequals(self,other):
-        if self.start.equals(other.start) and self.end.equals(other.end) and self.bend.equals(other.end):
+        if self.start.equals(other.start) and self.end.equals(other.end): # and self.bend.equals(other.end):
             return True
         return False
     def PrintWire(self):
@@ -130,13 +130,28 @@ class Grid:
             for p in value.ends:
                 for w in self.wires:
                     for wp in w.ends:
-                        if wp.equals(p) and not(w.wequals(value)):
+                        if wp.equals(p) and not(w.wequals(value)) and not w in connectedwires:
                             connectedwires.append(w)
-            for c in connectedwires:
-                #if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
-                value.changeBend()
-                if not ((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal))):
+            print(len(connectedwires))
+            #for e in connectedwires:
+               # e.PrintWire()
+            for i in range(2):
+                toflip = True
+                for c in connectedwires:
+                    if ((value.bend.xVal == c.bend.xVal) and ((c.bend.yVal <= value.start.yVal and c.bend.yVal >= value.end.yVal) or (c.bend.yVal <= value.end.yVal and c.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((c.bend.xVal <= value.start.xVal and c.bend.xVal >= value.end.xVal) or (c.bend.xVal <= value.end.xVal and c.bend.xVal >= value.start.xVal))):
+                        toflip = False
+                    
+                print(toflip)
+
+                if toflip:
                     value.changeBend()
+
+            
+                    
+                    
+                #value.changeBend()
+                #if not (((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal)))):
+                    #value.changeBend()
 
 
 
@@ -172,7 +187,7 @@ g.PrintWireList()
 g.Lsteiner()
 g.PrintWireList()
 wiremaker(convertlist(g.points),MST.MST(convertlist(g.points)),g)
-g.PrintWireList()
+#g.PrintWireList()
 g.Lsteiner()
 g.PrintWireList()
 #print (parser.parser())

@@ -7,13 +7,15 @@ app = Flask(__name__)
 
 @app.route("/", methods=['get'])
 def __init__():
+    Parsed = parser()
+    Onesteined = OneSteiner(Parsed)
     data = { "f":[], "i":[], "msti":[], "msts":[] }
-    data["i"].append(parser())
-    data["f"].append(OneSteiner(parser()))
-    data["msti"].append(MST(parser()))
+    data["i"].append(Parsed)
+    data["f"].append(Onesteined)
+    data["msti"].append(MST(Parsed))
     Nodes_Standin = parser()
-    for i in range(len(OneSteiner(parser()))):
-        Nodes_Standin.append(OneSteiner(parser())[i])
+    for i in range(len(Onesteined)):
+        Nodes_Standin.append(Onesteined[i][:])
         data["msts"].append(MST(Nodes_Standin))
     print(data)
     return render_template("steiner.html", data=data)

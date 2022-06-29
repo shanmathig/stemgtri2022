@@ -59,7 +59,7 @@ def thread(Nodes, Newnodes, Trynodes):
             Nodes_Standin = Nodes_List[k]
             for i in range(len(Best_Nodes)):
                 Nodes_Standin.append(Best_Nodes[i][:])
-                print("Trying:" + str(Nodes_Standin))
+                # print("Trying:" + str(Nodes_Standin))
                 Nodes_List.append(Nodes_Standin[:])
                 Best_Nodes_List = BestNodes(Nodes_Standin, Newnodes)
                 if(Best_Nodes != []):

@@ -8,6 +8,7 @@ Point(int x, int y)
 Wire(Point start, Point end, Grid grid)
 Grid(int xlength, int ylength) because of the way lists work in python and coding in general, add one to each length,
 for example if you wanted to make a 4x5 grid you would instantiate it as Grid(5,6)
+
 Important Methods:
 
 Part of the Grid class:
@@ -26,6 +27,7 @@ convertwirebendstonodes(Grid grid) : takes all the wires of the grid and turns t
 
 
 """
+
 
 
 
@@ -98,6 +100,136 @@ class Wire:
         print("bend")
         self.bend.PrintPoint()
         print("~~~~~~~~~~~~~~~")
+    
+    def findPotentialOverlap(self,other):
+        mutualPoint = ""
+        for i in self.ends:
+            for j in other.ends:
+                if i.equals(j):
+                    mutualPoint = i
+                    #mutualPoint.PrintPoint()
+        
+        #returns 0 if no mutual point
+        if mutualPoint == "":
+            return 0
+
+        if mutualPoint.xVal == self.bend.xVal:
+            flipped = False
+            if not mutualPoint.xVal == other.bend.xVal:
+                other.changeBend()
+                flipped = True
+                if not mutualPoint.xVal == other.bend.xVal:
+                    other.changeBend()
+                    return 0
+            
+            sb = abs(self.bend.yVal - mutualPoint.yVal)
+            ob = abs(other.bend.yVal - mutualPoint.yVal)
+            sb2 = self.bend.xVal - mutualPoint.xVal
+            ob2 = other.bend.xVal - mutualPoint.xVal
+            if sb2 * ob2 < 0:
+                return 0
+            if sb > ob:
+                if flipped:
+                    other.changeBend()
+                return ob
+            elif sb < ob:
+                if flipped:
+                    other.changeBend()
+                return sb
+                
+            else:
+                if flipped:
+                    other.changeBend()
+                return sb
+        elif mutualPoint.yVal == self.bend.yVal:
+            flipped = False
+            if not mutualPoint.yVal == other.end.yVal:
+                other.changeBend()
+                flipped = True
+                if not mutualPoint.yVal == other.bend.yVal:
+                    other.changeBend()
+                    return 0
+            
+            sb = abs(self.bend.xVal - mutualPoint.xVal)
+            ob = abs(other.bend.xVal - mutualPoint.xVal)
+            sb2 = self.bend.xVal - mutualPoint.xVal
+            ob2 = other.bend.xVal - mutualPoint.xVal
+            if sb2 * ob2 < 0:
+                return 0
+            if sb > ob:
+                if flipped:
+                    other.changeBend()
+                return ob
+            elif sb < ob:
+                if flipped:
+                    other.changeBend()
+                return sb
+                
+            else:
+                if flipped:
+                    other.changeBend()
+                return sb
+        else:
+            return 0
+
+    def findOverlap(self,other):
+        mutualPoint = ""
+        for i in self.ends:
+            for j in other.ends:
+                if i.equals(j):
+                    mutualPoint = i
+                    mutualPoint.PrintPoint()
+        
+        #returns 0 if no mutual point
+        if mutualPoint == "":
+            return 0
+
+        if mutualPoint.xVal == self.bend.xVal:
+            
+            
+            sb = abs(self.bend.yVal - mutualPoint.yVal)
+            ob = abs(other.bend.yVal - mutualPoint.yVal)
+            sb2 = self.bend.xVal - mutualPoint.xVal
+            ob2 = other.bend.xVal - mutualPoint.xVal
+            if sb2 * ob2 < 0:
+                return 0
+            if sb > ob:
+                
+                return ob
+            elif sb < ob:
+                
+                return sb
+                
+            else:
+                
+                return sb
+        elif mutualPoint.yVal == self.bend.yVal:
+            
+            
+            sb = abs(self.bend.xVal - mutualPoint.xVal)
+            ob = abs(other.bend.xVal - mutualPoint.xVal)
+            sb2 = self.bend.xVal - mutualPoint.xVal
+            ob2 = other.bend.xVal - mutualPoint.xVal
+            if sb2 * ob2 < 0:
+                return 0
+
+            if sb > ob:
+                
+                    
+                return ob
+            elif sb < ob:
+                return sb
+                
+            else:
+                
+                return sb
+        else:
+            return 0
+    
+
+
+        
+        
 
 class Grid:
     grid : list
@@ -152,37 +284,65 @@ class Grid:
     #now for the big stuff
     def Lsteiner(self):
 
-        # space is saved whenever the bend point is inside one of the other wires (between another bend point and 
-        # either the start or end point of the first wire)
-        # find out which bending saves more space
+        #flips the L if there isn't already an overlap, and flips it back if there isn't
+
         
-        for value in self.wires:
-            connectedwires = []
-            for p in value.ends:
-                for w in self.wires:
-                    for wp in w.ends:
-                        if wp.equals(p) and not(w.wequals(value)) and not w in connectedwires:
-                            connectedwires.append(w)
-            print(len(connectedwires))
-            #for e in connectedwires:
-               # e.PrintWire()
-            for i in range(2):
-                toflip = True
-                for c in connectedwires:
-                    if ((value.bend.xVal == c.bend.xVal) and ((c.bend.yVal <= value.start.yVal and c.bend.yVal >= value.end.yVal) or (c.bend.yVal <= value.end.yVal and c.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((c.bend.xVal <= value.start.xVal and c.bend.xVal >= value.end.xVal) or (c.bend.xVal <= value.end.xVal and c.bend.xVal >= value.start.xVal))):
-                        toflip = False
-                    
-                print(toflip)
-
-                if toflip:
-                    value.changeBend()
-
             
-                    
-                    
-                #value.changeBend()
-                #if not (((value.bend.xVal == c.bend.xVal) and ((value.bend.yVal <= value.start.yVal and value.bend.yVal >= value.end.yVal) or (value.bend.yVal <= value.end.yVal and value.bend.yVal >= value.start.yVal))) or ((value.bend.yVal == c.bend.yVal) and ((value.bend.xVal <= value.start.xVal and value.bend.xVal >= value.end.xVal) or (value.bend.xVal <= value.end.xVal and value.bend.xVal >= value.start.xVal)))):
-                    #value.changeBend()
+        for value in self.wires:
+            connectedwires = self.connectedWires(value)
+            value.PrintWire()
+            valA = 0
+            print(valA)
+            for e in connectedwires:
+                valA += value.findPotentialOverlap(e)
+                print("overlap" + str(valA))
+            value.changeBend()
+            valB = 0
+            print(valB)
+            for e in connectedwires:
+                valB += value.findPotentialOverlap(e)
+                print("overlapb" + str(valB))
+            if valA >= valB:
+                value.changeBend()
+            print("bend:")
+            value.bend.PrintPoint()
+            print("]]]]]]]]]")
+
+            """
+            pick up from here next time 
+            """
+
+        for value in self.wires:
+            connectedwires = self.connectedWires(value)
+            value.PrintWire()
+            valA = 0
+            for e in connectedwires:
+                valA += value.findOverlap(e)
+                print("overlap" + str(valA))
+            value.changeBend()
+            valB = 0
+            for e in connectedwires:
+                valB += value.findOverlap(e)
+                print("overlapb" + str(valB))
+            if valA >= valB:
+                value.changeBend()
+            print("bend:")
+            value.bend.PrintPoint()
+            print("]]]]]]]]]")
+                                    #print(len(connectedwires))
+                #for e in connectedwires:
+                # e.PrintWire()
+
+    
+    #takes the wire passed and returns all the wires connected to it
+    def connectedWires(self, wire):
+        cwlist = []
+        for w in self.wires:
+            for e in wire.ends:
+                for e2 in w.ends:
+                    if e.equals(e2) and not w in cwlist and not wire.wequals(w):
+                        cwlist.append(w)
+        return cwlist
 
 
 def convertlist(pts):
@@ -200,23 +360,30 @@ def convertwirebendstonodes(grid):
     for wire in grid.wires:
         wirebends.append(wire.bend)
 
+#returns a list of wires connected to this wire
 
-#points
 
-#these are all for the purpose of testing
-#thus they are not really needed
 
-"""
+
+#testing
+#"""
 g = Grid(11,11)
+#"""
 g.Enable(1,5)
 g.Enable(4,4)
 g.Enable(2,8)
 g.Enable(3,7)
 g.Enable(5,9)
 g.Enable(7,5)
-g.Enable(8,2)
+g.Enable(8,1)
 g.Enable(10,2)
 g.Enable(10,10)
+"""
+g.Enable(1,1)
+g.Enable(2,4)
+g.Enable(4,2)
+g.Enable(5,1)
+"""
 g.PrintGraph()
 g.UpdatePoints()
 #g.PrintPointList()
@@ -232,4 +399,10 @@ g.Lsteiner()
 g.PrintWireList()
 #print (parser.parser())
 convertwirebendstonodes(g)
-"""
+#"""
+
+
+
+
+
+

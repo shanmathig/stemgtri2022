@@ -110,6 +110,7 @@ function iterate(){
        var pointY = point[1]
        
        ellipse(xStep*pointX, h-(yStep*pointY), 10, 10);
+       
        //Display Each Addition of Wire
        stroke("blue")
        strokeWeight(1)
@@ -117,9 +118,13 @@ function iterate(){
        for(var p = 0; p< msts2.length; p++){
        var point1 = msts2[p][0] //(0) -> 9
        var point2 = msts2[p][1] //(9) -> 1
-       coordinate1 = nodefinal[k][point1] //nodefinal[0][0] : 1,5 -> 4,5
-       coordinate2 = nodefinal[k][point2] //nodefinal[0][9] : 4,5 -> 4,4
-       line(xStep*coordinate1[0], h-(yStep*coordinate1[1]), xStep*coordinate2[0], h-(yStep*coordinate2[1]))
+       console.log(nodefinal)
+       coordinate1 = nodefinal[p][point1] //nodefinal[0][0] : 1,5 -> 4,5
+       coordinate2 = nodefinal[p][point2] //nodefinal[0][9] : 4,5 -> 4,4
+       console.log(coordinate1)
+       console.log(coordinate2)
+       
+       line(xStep*coordinate1[0], h-(yStep*coordinate1[1]), xStep*coordinate1[0], h-(yStep*coordinate2[1]))
       }
     }
   }
@@ -127,9 +132,9 @@ function iterate(){
  console.log(k)
    //Pause to differentiate between each iteration 
    //????   
-  
+   noLoop();
 
-noLoop();
+
 
 }
 

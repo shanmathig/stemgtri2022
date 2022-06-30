@@ -1,11 +1,11 @@
 import math
 from parserMC import parserMC
-from gurobipy import *
+from pulp import *
 import matplotlib.pyplot as plt
 # Solve a multi-commodity flow problem.  Two products ('Pencils' and 
 
 def Solver():
-    m = Model('solver')
+    m = LpProblem('solver',LpMinimize)
     network = ['n1','n2','n3','n4','n5','n6']
     Netconnects = [[0,11],[8,2],[3,5],[10,3],[6,7],[1,10]]
     Nodes = []
@@ -33,12 +33,10 @@ def Solver():
     Cost = Coster(Node_Edges, XYpos)
     for i in range(len(Cost)):
         for l in range(len(network)):
-            Tempvars.append(m.addVar(vtype=GRB.BINARY, name = "X" + str(Nodeletters[Node_Edges[i][0]]) + str(Nodeletters[Node_Edges[i][1]])+ str(l+1)))
+            Tempvars.append(LpVariable("X" + str(Nodeletters[Node_Edges[i][0]]) + str(Nodeletters[Node_Edges[i][1]])+ str(l+1),0,1,LpBinary))
         Objectivevars.append(Tempvars[:])
         Tempvars = []
-    fakevars = []
-    m.update()
-    
+    fakevars = []    
     for i in range(len(Cost)):
         for l in range(len(network)):
             Tempvars.append(Node_Edges[i])
@@ -48,7 +46,6 @@ def Solver():
         for l in range(len(network)):
             finalnames.append(str(l+1))
             Tempvars = []
-    m.update()
     bigcost = []
     smallcost = []
     for i in range(len(Cost)):
@@ -56,7 +53,7 @@ def Solver():
             smallcost.append(Cost[i])
         bigcost.append(smallcost[:])
         smallcost = []
-    m.setObjective(quicksum(Objectivevars[i][u] * int(bigcost[i][u]) for i in range(len(Objectivevars)) for u in range(len(network))), GRB.MINIMIZE)
+    m += lpSum(Objectivevars[i][u] * int(bigcost[i][u]) for i in range(len(Objectivevars)) for u in range(len(network)))
     #m.addConstr(Objectivevars[0-5] + Objectivevars[6-11] <=2)
 
     
@@ -87,15 +84,13 @@ def Solver():
                     Sourcelist.append(0)
         
         for n in range(len(network)):
-            tempconstr = quicksum(seperatelist[f][n]*int(negativelist[f]) for f in range(int(len(seperatelist))))==Sourcelist[n]
-            m.addConstr(tempconstr)
+            m += lpSum(seperatelist[f][n]*int(negativelist[f]) for f in range(int(len(seperatelist))))==Sourcelist[n]
+            
 
     # m.setParam('Cuts', 0)
     # m.setParam('Heuristics', 0)
     # m.setParam('Presolve' ,0)
     # m.setParam('Method', 1)
-    m.setParam('PoolSearchMode', 2)
-    m.setParam('PoolSolutions',20000)
     Templist = []
     Newlist = []
     for i in range(int(len(Objectivevars))):
@@ -109,9 +104,8 @@ def Solver():
 
     for i in range(len(Newlist)):
 
-        m.addConstr(quicksum(Newlist[i][k][l] for l in range(len(network)) for k in range(2)) <= 2)
-    m.update()
-    m.optimize()
+        m += lpSum(Newlist[i][k][l] for l in range(len(network)) for k in range(2)) <= 4
+    m.solve()
     printlist = []
     if m.status == GRB.status.OPTIMAL:
         for i in range(len(flatten_list)):

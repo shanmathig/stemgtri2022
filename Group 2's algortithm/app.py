@@ -16,8 +16,6 @@ def __init__():
     Nodes_Standin = parser()
     for i in range(len(Onesteined)):
         Nodes_Standin.append(Onesteined[i][:])
-    for i in range(len(Onesteined)):
-        Nodes_Standin.append(Onesteined[i][:])
         data["msts"].append(MST(Nodes_Standin))
     print(data)
     return render_template("steiner.html", data=data)

@@ -1,136 +1,125 @@
 import math
 from parserMC import parserMC
 from gurobipy import *
-import matplotlib.pyplot as plt
-# Solve a multi-commodity flow problem.  Two products ('Pencils' and 
-
+#This code uses no classes, started with lots of them and progressively regressed to lists trying to fix LP solver
 def Solver():
+    #Make the model
     m = Model('solver')
-    network = ['n1','n2','n3','n4','n5','n6']
-    Netconnects = [[0,11],[8,2],[3,5],[10,3],[6,7],[1,10]]
-    Nodes = []
-    XYpos = []
-    Nodeletters = []
-    values = parserMC()
-    for i in range(len(values)):
-        Nodes.append(i)
-    for i in range(len(values)):
-        Nodeletters.append(values[i][2])
-    for i in range(len(values)):
-        TempXY = [values[i][0]]
-        TempXY.append(values[i][1])
-        XYpos.append(TempXY)
-    Objectivevars = []
-    Tempvars = []
-    Node_Edges = []
-    finalnames = []
-    Old_Edges = Edges(Nodes, XYpos)
-    for i in range(len(Old_Edges)):
-        Node_Edges.append(Old_Edges[i][:])
-        Temp_Edges = Old_Edges[i]
-        Temp_Edges.reverse()
-        Node_Edges.append(Temp_Edges[:])
-    Cost = Coster(Node_Edges, XYpos)
+    #Networks
+    Networks = ['n1','n2','n3','n4','n5','n6']
+    #Connections between nodes on networks in ascending order
+    Network_Connections = [[0,11],[8,2],[3,5],[10,3],[6,7],[1,10]]
+    #Creates a list of nodes (int, eg [1,2,3,4])
+    #Creates a list of nodes (letter, eg [a,b,c,d])
+    #Creates a list of positions in XY ([[x1,y1],[x2,y2]])
+    Parsed_Nodes = parserMC()
+    Nodes_XY = []
+    Node_Letters = []
+    Node_Numbers = []
+    for i in range(len(Parsed_Nodes)):
+        Temporary_XY = [Parsed_Nodes[i][0]]
+        Temporary_XY.append(Parsed_Nodes[i][1])
+        Nodes_XY.append(Temporary_XY)
+        Node_Letters.append(Parsed_Nodes[i][2])
+        Node_Numbers.append(i)
+    #Returns all edges ([[0,1],[1,0]])
+    All_Edges = []
+    Inital_Edges = Edges(Node_Numbers, Nodes_XY)
+    for i in range(len(Inital_Edges)):
+        All_Edges.append(Inital_Edges[i][:])
+        Temporary_Edges = Inital_Edges[i]
+        Temporary_Edges.reverse()
+        All_Edges.append(Temporary_Edges[:])
+    #Returns the "cost" (distance)
+    Cost = Coster(All_Edges, Nodes_XY)
+    #Assigns all variables in objective function, nested by network ([[[Xab1],[Xab2]],[[Xba1],[Xba2]]])
+    Objective_Vars = []
+    Temporary_Vars = []
     for i in range(len(Cost)):
-        for l in range(len(network)):
-            Tempvars.append(m.addVar(vtype=GRB.BINARY, name = "X" + str(Nodeletters[Node_Edges[i][0]]) + str(Nodeletters[Node_Edges[i][1]])+ str(l+1)))
-        Objectivevars.append(Tempvars[:])
-        Tempvars = []
-    fakevars = []
+        for l in range(len(Networks)):
+            Temporary_Vars.append(m.addVar(vtype=GRB.BINARY, name = "X" + str(Node_Letters[All_Edges[i][0]]) + str(Node_Letters[All_Edges[i][1]])+ str(l+1)))
+        Objective_Vars.append(Temporary_Vars[:])
+        Temporary_Vars = []
+    #Update Gurobi
     m.update()
+    #Creates a list of costs in the same format as the objective function
+    Edge_Costs = []
+    for i in range(len(Cost)):
+        for l in range(len(Networks)):
+            Temporary_Vars.append(Cost[i])
+        Edge_Costs.append(Temporary_Vars[:])
+        Temporary_Vars = []
+    #Set the objective function
+    m.setObjective(quicksum(Objective_Vars[i][u] * int(Edge_Costs[i][u]) for i in range(len(Objective_Vars)) for u in range(len(Networks))), GRB.MINIMIZE)
+    #Creates variables in the same format as objective variables, but with ints so they can be compared
+    StandIn_Vars = []
+    for i in range(len(Cost)):
+        for l in range(len(Networks)):
+            Temporary_Vars.append(All_Edges[i])
+        StandIn_Vars.append(Temporary_Vars[:])
+        Temporary_Vars = []
     
-    for i in range(len(Cost)):
-        for l in range(len(network)):
-            Tempvars.append(Node_Edges[i])
-        fakevars.append(Tempvars[:])
-        Tempvars = []
-    for i in range(len(Cost)):
-        for l in range(len(network)):
-            finalnames.append(str(l+1))
-            Tempvars = []
-    m.update()
-    bigcost = []
-    smallcost = []
-    for i in range(len(Cost)):
-        for l in range(len(network)):
-            smallcost.append(Cost[i])
-        bigcost.append(smallcost[:])
-        smallcost = []
-    m.setObjective(quicksum(Objectivevars[i][u] * int(bigcost[i][u]) for i in range(len(Objectivevars)) for u in range(len(network))), GRB.MINIMIZE)
-    #m.addConstr(Objectivevars[0-5] + Objectivevars[6-11] <=2)
-
-    
-    flatten_list = [element for sublist in fakevars for element in sublist]
-    flatten_list2 = [element for sublist in Objectivevars for element in sublist]
-    for k in range(len(Nodes)):
-        
-        seperatelist = []
-        for i in range(len(Objectivevars)):
+    for k in range(len(Node_Numbers)):
+        #Seperates list into networks
+        Seperated_List = []
+        for i in range(len(Objective_Vars)):
             Templist = []
-            for l in range(len(network)):
-                if(fakevars[i][l][0] == Nodes[k]):
-                    Templist.append(Objectivevars[i][l])
-                if(fakevars[i][l][1] == Nodes[k]):
-                    Templist.append(Objectivevars[i][l])
-            #print("templist=" + str(Templist))
+            for l in range(len(Networks)):
+                if(StandIn_Vars[i][l][0] == Node_Numbers[k]):
+                    Templist.append(Objective_Vars[i][l])
+                if(StandIn_Vars[i][l][1] == Node_Numbers[k]):
+                    Templist.append(Objective_Vars[i][l])
             if Templist != []:
-                seperatelist.append(Templist[:])
-        negativelist = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
-        Sourcelist = []
-        for i in range(len(network)):
-            if k == Netconnects[i][0]:
-                Sourcelist.append(1)
-            if k == Netconnects[i][1]:
-                Sourcelist.append(-1)
-            if k != Netconnects[i][0]:
-                if k != Netconnects[i][1]:
-                    Sourcelist.append(0)
-        
-        for n in range(len(network)):
-            tempconstr = quicksum(seperatelist[f][n]*int(negativelist[f]) for f in range(int(len(seperatelist))))==Sourcelist[n]
-            m.addConstr(tempconstr)
-
-    # m.setParam('Cuts', 0)
-    # m.setParam('Heuristics', 0)
-    # m.setParam('Presolve' ,0)
-    # m.setParam('Method', 1)
-    m.setParam('PoolSearchMode', 2)
-    m.setParam('PoolSolutions',20000)
-    Templist = []
-    Newlist = []
-    for i in range(int(len(Objectivevars))):
+                Seperated_List.append(Templist[:])
+        #Create an index of which equations should be set to -1, 0, and 1
+        RH_Index = []
+        for i in range(len(Networks)):
+            if k == Network_Connections[i][0]:
+                RH_Index.append(1)
+            if k == Network_Connections[i][1]:
+                RH_Index.append(-1)
+            if k != Network_Connections[i][0]:
+                if k != Network_Connections[i][1]:
+                    RH_Index.append(0)
+        #Pattern to set variables coefficient (1 or -1) in the first constraint equation
+        Negative_Index = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
+        #Set the first set of contraint equations (xab1 - xba1 = 0)
+        for n in range(len(Networks)):
+            m.addConstr(quicksum(Seperated_List[f][n]*int(Negative_Index[f]) for f in range(int(len(Seperated_List))))==RH_Index[n])
+    #Creates a formatted list of the objective vars for use in the last set of contraints
+    Formatted_Vars = []
+    for i in range(int(len(Objective_Vars))):
         if(i%2 == 0):
-            Templist.append(Objectivevars[i])
+            Temporary_Vars.append(Objective_Vars[i])
         if(i%2 != 0):
-            Templist.append(Objectivevars[i])
-            Newlist.append(Templist)
-            Templist = []
-    
-
-    for i in range(len(Newlist)):
-
-        m.addConstr(quicksum(Newlist[i][k][l] for l in range(len(network)) for k in range(2)) <= 2)
-    m.update()
+            Temporary_Vars.append(Objective_Vars[i])
+            Formatted_Vars.append(Temporary_Vars)
+            Temporary_Vars = []
+    #Creates the last contraint, 3 should be 2 for the book problem but that makes it unfeasible
+    for i in range(len(Formatted_Vars)):
+        m.addConstr(quicksum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 3)
+    #Run the optimizer
     m.optimize()
-    printlist = []
+    #Prints the result
+    Print_Names = []
+    Final_Names = []
+    for i in range(len(Cost)):
+        for l in range(len(Networks)):
+            Final_Names.append(str(l+1))
+    Flattened_List = [i for m in StandIn_Vars for i in m]
     if m.status == GRB.status.OPTIMAL:
-        for i in range(len(flatten_list)):
+        for i in range(len(Flattened_List)):
             if abs(m.x[i]) == 1:
-                printlist.append([flatten_list[i], int(finalnames[i])])
-    finallist = []
-    for l in range(len(network)):
-        for i in range(len(printlist)):
-            if(printlist[i][1] == l+1):
-                finallist.append(printlist[i])
-    for i in range(len(finallist)):
-        print(str(Nodeletters[finallist[i][0][0]])+" -- "+str(Nodeletters[finallist[i][0][1]])+ " net:"+ str(finallist[i][1]))
+                Print_Names.append([Flattened_List[i], int(Final_Names[i])])
+    Final_Nodes = []
+    for l in range(len(Networks)):
+        for i in range(len(Print_Names)):
+            if(Print_Names[i][1] == l+1):
+                Final_Nodes.append(Print_Names[i])
+    for i in range(len(Final_Nodes)):
+        print(str(Node_Letters[Final_Nodes[i][0][0]])+" -- "+str(Node_Letters[Final_Nodes[i][0][1]])+ " net:"+ str(Final_Nodes[i][1]))
     print(m.getParamInfo)
     print (m.display())
-    m.write('model.lp')
-    # m.computeIIS() 
-    # print(m.IISConstr)
-    # m.feasRelaxS(0, False, False, True) 
-    # m.optimize()
 
 def Coster(Edges, XYpos):
     Costlist = []

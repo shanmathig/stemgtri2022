@@ -58,19 +58,26 @@ def Solver():
             Temporary_Vars.append(All_Edges[i])
         StandIn_Vars.append(Temporary_Vars[:])
         Temporary_Vars = []
-    
     for k in range(len(Node_Numbers)):
         #Seperates list into networks
         Seperated_List = []
         for i in range(len(Objective_Vars)):
             Templist = []
+            Templist2 = []
             for l in range(len(Networks)):
                 if(StandIn_Vars[i][l][0] == Node_Numbers[k]):
                     Templist.append(Objective_Vars[i][l])
-                if(StandIn_Vars[i][l][1] == Node_Numbers[k]):
-                    Templist.append(Objective_Vars[i][l])
+                    Templist2.append(StandIn_Vars[i][l])
+            Templist4 = []
             if Templist != []:
+                Templist3 = Templist2[0][:]
+                Templist3.reverse()
+                for o in range(len(Objective_Vars)):
+                    for h in range(len(Networks)):
+                        if StandIn_Vars[o][h] == Templist3:
+                            Templist4.append(Objective_Vars[o][h])
                 Seperated_List.append(Templist[:])
+                Seperated_List.append(Templist4)
         #Create an index of which equations should be set to -1, 0, and 1
         RH_Index = []
         for i in range(len(Networks)):
@@ -84,6 +91,8 @@ def Solver():
         #Pattern to set variables coefficient (1 or -1) in the first constraint equation
         Negative_Index = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
         #Set the first set of contraint equations (xab1 - xba1 = 0)
+        print(Seperated_List)
+        
         for n in range(len(Networks)):
             m.addConstr(quicksum(Seperated_List[f][n]*int(Negative_Index[f]) for f in range(int(len(Seperated_List))))==RH_Index[n])
     #Creates a formatted list of the objective vars for use in the last set of contraints
@@ -97,8 +106,10 @@ def Solver():
             Temporary_Vars = []
     #Creates the last contraint, 3 should be 2 for the book problem but that makes it unfeasible
     for i in range(len(Formatted_Vars)):
-        m.addConstr(quicksum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 3)
+        m.addConstr(quicksum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 2)
     #Run the optimizer
+    #m.setParam('PoolSolutions',50)
+    #m.setParam('PoolSearchMode',2)
     m.optimize()
     #Prints the result
     Print_Names = []
@@ -118,8 +129,6 @@ def Solver():
                 Final_Nodes.append(Print_Names[i])
     for i in range(len(Final_Nodes)):
         print(str(Node_Letters[Final_Nodes[i][0][0]])+" -- "+str(Node_Letters[Final_Nodes[i][0][1]])+ " net:"+ str(Final_Nodes[i][1]))
-    print(m.getParamInfo)
-    print (m.display())
 
 def Coster(Edges, XYpos):
     Costlist = []

@@ -7,6 +7,7 @@ body, html{
 }
 #canvas{
     position: relative;
+    text-align: right;
 }
 #canvas canvas, #overTheCanvas{
     position: absolute;
@@ -14,12 +15,14 @@ body, html{
 #overTheCanvas{
     width: 100%;
     height: 100%;
+    position: center;
+
 }
 #title{
-	font-family: 'Gochi Hand', cursive;
+	font-family: 'Arial', cursive;
 	color: black;
 	font-size: 50px;
-    text-align: center;
+    text-align: right;
 }
 #title-hr{
     width: 200px;

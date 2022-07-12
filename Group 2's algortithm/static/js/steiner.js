@@ -3,13 +3,15 @@ var numberOfColumns;
 var xStep; 
 var yStep;
 var positions = [];
-let w = window.innerWidth;
-let h = window.innerHeight
+let w = window.innerWidth/2;
+let h = w
 var k = 0;
 
 function setup(){
 
-  createCanvas(w+5, h+5);
+  createCanvas(w+10, h+10);
+  stroke(2)
+  line(0, 0, 0, w)
  
   numberOfColumns = 10; 
   numberOfRows = 10; 
@@ -52,6 +54,7 @@ for (var i = 0; i< nodeinit.length; i++){
   ellipse(xStep*nodeinit[i][0], h-(yStep*nodeinit[i][1]), 20, 20);
 } 
 }
+  
 
 //Initial MST Lines
 function initlines(){
@@ -82,6 +85,7 @@ function redisplayMST(){
 }
 //Re-displays just initial grid
 function redisplay(){
+  clear()
     gridpts();
     grid();  
  }
@@ -91,51 +95,72 @@ function redisplay(){
 gridpts()
 sleep(2000)
   .then(() => initnodes())
-  .then(() => sleep(2000))
+  .then(() => sleep(3000))
   .then(() => initlines())
-  .then(() => sleep(2000))
+  .then(() => sleep(3000))
   .then(() => grid())
-  .then(() => sleep(2000))
-  .then(() => iterate())
-  .then(() => sleep(2000))
+  .then(() => sleep(3000))
+  .then(() => iterate(0))
+  .then(() => sleep(3000))
+  .then(() => iterate(1))
+  .then(() => sleep(3000))
+  .then(() => iterate(2))
+  .then(() => sleep(3000))
+  .then(() => iterate(3))
+
+console.log(nodeinit)
+console.log(nodefinal)
+console.log(msts.length)
+console.log(nodeinit)
+console.log(msts[0])
+console.log(msts[1])
+console.log(msts[2])
+console.log(msts[3])
+
+nodeCombined = nodeinit.concat(nodefinal[0])
 
 //2.) Intermediate MSTs
-function iterate(){
- for(var k= 0; k < nodefinal.length; k++){
-    for(var j = 0; j< nodefinal[k].length; j++){
+function iterate(k){
+// for(var k= 0; k < msts.length; k++){
+    for(var j = 0; j< msts[k].length; j++){
       //Display Each Addition of Node 
-      fill("blue");
-       var point = nodefinal[k][j]
-       var pointX = point[0]
-       var pointY = point[1]
-       
-       ellipse(xStep*pointX, h-(yStep*pointY), 10, 10);
-       
+      msts2 = msts[k]
+      redisplay()
+       for (var i = 0; i< msts2.length+1; i++){
+        fill('blue');
+        ellipse(xStep*nodeCombined[i][0], h-(yStep*nodeCombined[i][1]), 20, 20);
+      } 
        //Display Each Addition of Wire
        stroke("blue")
        strokeWeight(1)
-       let msts2 = msts[k]
+       console.log(msts[0])
+       console.log(msts[1])
+console.log(nodeCombined)
        for(var p = 0; p< msts2.length; p++){
-       var point1 = msts2[p][0] //(0) -> 9
-       var point2 = msts2[p][1] //(9) -> 1
-       console.log(nodefinal)
-       coordinate1 = nodefinal[p][point1] //nodefinal[0][0] : 1,5 -> 4,5
-       coordinate2 = nodefinal[p][point2] //nodefinal[0][9] : 4,5 -> 4,4
-       console.log(coordinate1)
-       console.log(coordinate2)
-       
-       line(xStep*coordinate1[0], h-(yStep*coordinate1[1]), xStep*coordinate1[0], h-(yStep*coordinate2[1]))
+          point1 = msts2[p][0] //(0) 
+          point2 = msts2[p][1] //(9)
+
+          coordinate1 = nodeCombined[point1] //nodeinit[0][0] : 1,5 -> 4,5
+          coordinate2 = nodeCombined[point2] //nodeinit[0][9] : 4,5 -> 4,4
+         console.log(coordinate1)
+         console.log(coordinate2)
+         
+         console.log(point1)
+         console.log(point2)
+ 
+          line(xStep*coordinate1[0], h-(yStep*coordinate1[1]), xStep*coordinate2[0], h-(yStep*coordinate2[1]))
+
       }
-    }
+
+    
   }
  // }
- console.log(k)
    //Pause to differentiate between each iteration 
    //????   
-   noLoop();
-
 
 
 }
+noLoop();
+
 
 }

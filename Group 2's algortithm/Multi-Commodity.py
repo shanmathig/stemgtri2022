@@ -89,9 +89,8 @@ def Solver():
                 if k != Network_Connections[i][1]:
                     RH_Index.append(0)
         #Pattern to set variables coefficient (1 or -1) in the first constraint equation
-        Negative_Index = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
+        Negative_Index = [1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1,1,-1]
         #Set the first set of contraint equations (xab1 - xba1 = 0)
-        print(Seperated_List)
         
         for n in range(len(Networks)):
             m.addConstr(quicksum(Seperated_List[f][n]*int(Negative_Index[f]) for f in range(int(len(Seperated_List))))==RH_Index[n])

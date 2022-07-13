@@ -45,7 +45,6 @@ def OneSteiner(Nodes):
     resulting_Nodes(Best_Nodes_Final)
     for i in range(len(Nodes)):
         Best_Nodes_Final.remove(Nodes[i])
-    
     return(Best_Nodes_Final)
 
 def thread(Nodes, Newnodes, Trynodes):
@@ -55,11 +54,13 @@ def thread(Nodes, Newnodes, Trynodes):
     k=0
     while(True):
         try:
+            
             Best_Nodes = BestNodes(Nodes_List[k], Best_Nodes_Current)
+            
             Nodes_Standin = Nodes_List[k]
             for i in range(len(Best_Nodes)):
                 Nodes_Standin.append(Best_Nodes[i][:])
-                # print("Trying:" + str(Nodes_Standin))
+                print("Trying:" + str(Nodes_Standin))
                 Nodes_List.append(Nodes_Standin[:])
                 Best_Nodes_List = BestNodes(Nodes_Standin, Newnodes)
                 if(Best_Nodes != []):
@@ -69,6 +70,7 @@ def thread(Nodes, Newnodes, Trynodes):
                             Nodes_List.append(Nodes_Standin[:])
                         Nodes_Standin.pop()
                 Nodes_Standin.pop()  
+
             k=k+1
         except IndexError:
             return(Nodes_List)

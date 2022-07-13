@@ -1,6 +1,6 @@
 from MST import MST
 from Result import resulting_Nodes
-def OneSteiner(Nodes):
+def OldSteiner(Nodes):
     Edges = MST(Nodes)
     #Compute current wire length
     Wire_Length_Initial = 0

@@ -4,6 +4,7 @@ from parser import parser
 from OneSteiner import OneSteiner
 from MST import MST
 from OldOneSteiner import OldSteiner
+from Randomfunc import Randomfun
 app = Flask(__name__)
 
 @app.route("/", methods=['get'])
@@ -33,5 +34,21 @@ def Slow():
     for i in range(len(Onesteined)):
         Nodes_Standin.append(Onesteined[i][:])
         data["msts"].append(MST(Nodes_Standin))
+    print(data)
+    return render_template("steiner.html", data=data)
+
+@app.route("/rd", methods=['get'])
+def radnom():
+    Parsed = Randomfun()
+    Nodes_Standin = Parsed[:]
+    Onesteined = OldSteiner(Parsed[:])
+    data = { "f":[], "i":[], "msti":[], "msts":[] }
+    data["i"].append(Parsed)
+    data["f"].append(Onesteined)
+    data["msti"].append(MST(Parsed))
+    
+    for i in range(len(Onesteined)):
+        Nodes_Standin.append(Onesteined[i][:])
+        data["msts"].append(MST(Nodes_Standin)[:])
     print(data)
     return render_template("steiner.html", data=data)

@@ -77,9 +77,10 @@ function grid(){
 
 //Re-display initial MST and grid 
 function redisplayMST(){
+  clear()
     gridpts();
+    fill("pink")
     initnodes();
-    initlines();
     grid();  
 
 }
@@ -101,7 +102,7 @@ sleep(2000)
   .then(() => grid())
   .then(() => sleep(3000))
   .then(() => iterate(0))
-  .then(() => sleep(3000))
+  .then(() => sleep(6000))
   .then(() => iterate(1))
   .then(() => sleep(3000))
   .then(() => iterate(2))
@@ -125,10 +126,10 @@ function iterate(k){
     for(var j = 0; j< msts[k].length; j++){
       //Display Each Addition of Node 
       msts2 = msts[k]
-      redisplay()
+      redisplayMST()
        for (var i = 0; i< msts2.length+1; i++){
         fill('blue');
-        ellipse(xStep*nodeCombined[i][0], h-(yStep*nodeCombined[i][1]), 20, 20);
+        ellipse(xStep*nodeCombined[i][0], h-(yStep*nodeCombined[i][1]), 13, 13);
       } 
        //Display Each Addition of Wire
        stroke("blue")

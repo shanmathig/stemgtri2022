@@ -12,14 +12,13 @@ function setup(){
   createCanvas(window.innerWidth, window.innerHeight);
   strokeWeight(1)
   stroke("blue")
-
   numberOfColumns = 10; 
   numberOfRows = 10; 
   xStep = (w)/numberOfColumns; 
   yStep = (h)/numberOfRows; 
 
-  for(var x = 0; x < w+10; x += xStep){
-    for(var y = 0; y < h+10; y += yStep){ 
+  for(var x = 15; x < w+25; x += xStep){
+    for(var y = 15; y < h+10; y += yStep){ 
       var p = createVector(x, y);
       positions.push(p);
     }   
@@ -30,6 +29,18 @@ function setup(){
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+//loopsleep
+const delay = (milliseconds) => {
+  return new Promise(resolve => {
+      setTimeout(() => {
+          resolve(milliseconds);
+      }, milliseconds);
+  });
+}
+delay(12000)
+.then(milliseconds => {
+  console.log(`Done waiting ${milliseconds / 1000} seconds.`);
+});
 
 //Draw
 function draw(){
@@ -53,7 +64,7 @@ function initnodes(){
   for (var i = 0; i< nodeinit.length; i++){
     strokeWeight(1)
     fill('red');
-    ellipse(xStep*nodeinit[i][0], h-(yStep*nodeinit[i][1]), 20, 20);
+    ellipse(15+xStep*nodeinit[i][0], 15+h-(yStep*nodeinit[i][1]), 20, 20);
 } 
 }
   
@@ -63,7 +74,7 @@ function initlines(){
     stroke("red")
     strokeWeight(1.5)
     for (var i = 0; i< msti2.length; i++){
-      line(xStep*nodeinit[msti2[i][0]][0], h-(yStep*nodeinit[msti2[i][0]][1]), xStep*nodeinit[msti2[i][1]][0], h-(yStep*nodeinit[msti2[i][1]][1]))
+      line(15+xStep*nodeinit[msti2[i][0]][0], 15+h-(yStep*nodeinit[msti2[i][0]][1]), 15+xStep*nodeinit[msti2[i][1]][0], 15+h-(yStep*nodeinit[msti2[i][1]][1]))
       textSize(50)
       text(Wirelengths[0], 910, 250)
   } 
@@ -74,8 +85,8 @@ function grid(){
     stroke("black")
     strokeWeight(0.5)
     for(var i = 0; i < nodeinit.length; i++){
-      line(xStep*nodeinit[i][0], 0, xStep*nodeinit[i][0], h)
-      line(0,h-(yStep*nodeinit[i][1]), w,h-(yStep*nodeinit[i][1]))
+      line(15+xStep*nodeinit[i][0], 15, 15+xStep*nodeinit[i][0], 15+h)
+      line(15,15+h-(yStep*nodeinit[i][1]), 15+w,15+h-(yStep*nodeinit[i][1]))
     }
 }
 
@@ -101,6 +112,10 @@ function redisplay(){
   textSize(35)
   fill('navy')    
   text('Wirelength:', 850, 150)
+  strokeWeight(3)
+  stroke("black")
+  noFill()
+  square( 897, 193, 80 )
   gridpts();
  }
  
@@ -116,7 +131,7 @@ function iterate(k, color, p, n){
         strokeWeight(1)
         stroke('black')
         fill(color);
-        ellipse(xStep*nodeCombined[i][0], h-(yStep*nodeCombined[i][1]), n, n);
+        ellipse(15+xStep*nodeCombined[i][0], 15+h-(yStep*nodeCombined[i][1]), n, n);
       } 
        //Display Each Addition of Wire
        stroke(color)
@@ -126,7 +141,7 @@ function iterate(k, color, p, n){
           point2 = msts2[p][1] //(9)
           coordinate1 = nodeCombined[point1] //nodeinit[0][0] : 1,5 -> 4,5
           coordinate2 = nodeCombined[point2] //nodeinit[0][9] : 4,5 -> 4,4
-          line(xStep*coordinate1[0], h-(yStep*coordinate1[1]), xStep*coordinate2[0], h-(yStep*coordinate2[1]))
+          line(15+xStep*coordinate1[0], 15+h-(yStep*coordinate1[1]), 15+xStep*coordinate2[0], 15+h-(yStep*coordinate2[1]))
           textSize(50)
           text(Wirelengths[k+1], 910, 250)
           console.log(Wirelengths[k])
@@ -137,6 +152,7 @@ noLoop();
 
 //"Animation"
 gridpts()
+
 sleep(2000)
   .then(() => initnodes())
   .then(() => sleep(3000))
@@ -144,34 +160,41 @@ sleep(2000)
   .then(() => sleep(3000))
   .then(() => grid())
   .then(() => sleep(3000))
-  .then(() => iterate(0, 'blue', true, 13))
-  .then(() => sleep(3000))
-  .then(() => iterate(1, 'blue', true, 13))
-  .then(() => sleep(3000))
-  .then(() => iterate(2, 'blue', true, 13))
-  .then(() => sleep(3000))
-  .then(() => iterate(msts.length-1, 'blue', true, 16))
-  .then(() => sleep(3000))
-  .then(() => iterate(msts.length-1, 'green', true, 20))
-  .then(() => sleep(3000))
-  .then(() => clear())
-  .then(() => iterate(msts.length-1, 'green', false, 20))
-  .then(() => sleep(3000))
 
-  // for(i = 0; i<msts.length; i++){
-  //   if(i!=msts.length-1){
-  //   sleep(2000)
-  //   .then(() => iterate(i, 'blue', true, 13))
-  //   }
-  //   else{
-  //     sleep(2000)
-  //     .then(() => iterate(msts.length-1, 'blue', true, 16))
-  //     .then(() => sleep(3000))
-  //     .then(() => iterate(msts.length-1, 'green', true, 20))
-  //     .then(() => sleep(3000))
-  //     .then(() => clear())
-  //     .then(() => iterate(msts.length-1, 'green', false, 20))
-  //     .then(() => sleep(3000))
-  //   }
-  // }
+  const delays = [9000, 3000, 3000, 3000, 3000, 3000, 3000];
+  const startTime = Date.now();
+  const doNextPromise = (d) => {
+    delay(delays[d])
+      .then(x => {
+        iterate(d, 'blue', true, 13)
+        d++;
+        if (d < msts.length)
+          doNextPromise(d)
+        else
+        sleep(10)
+        .then(() => iterate(msts.length-1, 'blue', true, 16))
+        .then(() => sleep(3000))
+        .then(() => iterate(msts.length-1, 'green', true, 20))
+        .then(() => sleep(3000))
+        .then(() => clear())
+        .then(() => iterate(msts.length-1, 'green', false, 20))
+        .then(() => sleep(3000)) 
+      })
+  }
+  doNextPromise(0);
+  // .then(() => iterate(0, 'blue', true, 13))
+  // .then(() => sleep(3000))
+  // .then(() => iterate(1, 'blue', true, 13))
+  // .then(() => sleep(3000))
+  // .then(() => iterate(2, 'blue', true, 13))
+  // .then(() => sleep(3000))
+  // .then(() => iterate(msts.length-1, 'blue', true, 16))
+  // .then(() => sleep(3000))
+  // .then(() => iterate(msts.length-1, 'green', true, 20))
+  // .then(() => sleep(3000))
+  // .then(() => clear())
+  // .then(() => iterate(msts.length-1, 'green', false, 20))
+  // .then(() => sleep(3000))
+
+
 }

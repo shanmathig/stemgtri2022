@@ -3,7 +3,7 @@ var numberOfColumns;
 var xStep; 
 var yStep;
 var positions = [];
-let w = window.innerWidth/2;
+let w = window.innerWidth/2.25;
 let h = w
 var k = 0;
 
@@ -18,7 +18,7 @@ function setup(){
   yStep = (h)/numberOfRows; 
 
   for(var x = 15; x < w+25; x += xStep){
-    for(var y = 15; y < h+10; y += yStep){ 
+    for(var y = 15; y < h+25; y += yStep){ 
       var p = createVector(x, y);
       positions.push(p);
     }   

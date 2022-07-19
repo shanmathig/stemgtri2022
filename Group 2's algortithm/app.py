@@ -58,3 +58,20 @@ def radnom():
         data["Wirelengths"].append(Eval(Nodes_Standin))
     print(data)
     return render_template("steiner.html", data=data)
+
+@app.route("/rdslow", methods=['get'])
+def radnomslow():
+    Parsed = Randomfun()
+    Nodes_Standin = Parsed[:]
+    Onesteined = OneSteiner(Parsed[:])
+    data = { "f":[], "i":[], "msti":[], "msts":[], "Wirelengths": []}
+    data["i"].append(Parsed)
+    data["f"].append(Onesteined)
+    data["msti"].append(MST(Parsed))
+    data["Wirelengths"].append(Eval(Parsed))
+    for i in range(len(Onesteined)):
+        Nodes_Standin.append(Onesteined[i][:])
+        data["msts"].append(MST(Nodes_Standin)[:])
+        data["Wirelengths"].append(Eval(Nodes_Standin))
+    print(data)
+    return render_template("steiner.html", data=data)

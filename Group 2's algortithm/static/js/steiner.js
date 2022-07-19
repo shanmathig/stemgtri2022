@@ -29,7 +29,7 @@ function setup(){
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-//loopsleep
+//Delay Loop
 const delay = (milliseconds) => {
   return new Promise(resolve => {
       setTimeout(() => {
@@ -50,7 +50,6 @@ function draw(){
   var nodeinit = nodelistinit[0];
   var nodefinal = nodelistfinal;
 
-//BABY FUNCTIONS START HERE
 //Grid Points  
 function gridpts(){
   stroke("black")
@@ -109,6 +108,7 @@ function redisplayMST(p){
 //Re-displays just initial grid
 function redisplay(){
   clear()
+  gridpts();
   textSize(35)
   fill('navy')    
   text('Wirelength:', 850, 150)
@@ -116,10 +116,8 @@ function redisplay(){
   stroke("black")
   noFill()
   square( 897, 193, 80 )
-  gridpts();
  }
  
-//FUNCTIONS END HERE
 //Intermediate MSTs
 nodeCombined = nodeinit.concat(nodefinal[0])
 function iterate(k, color, p, n){
@@ -139,8 +137,8 @@ function iterate(k, color, p, n){
        for(var p = 0; p< msts2.length; p++){
           point1 = msts2[p][0] //(0) 
           point2 = msts2[p][1] //(9)
-          coordinate1 = nodeCombined[point1] //nodeinit[0][0] : 1,5 -> 4,5
-          coordinate2 = nodeCombined[point2] //nodeinit[0][9] : 4,5 -> 4,4
+          coordinate1 = nodeCombined[point1] //nodeinit[0][0] : 1,5
+          coordinate2 = nodeCombined[point2] //nodeinit[0][9] : 4,5
           line(15+xStep*coordinate1[0], 15+h-(yStep*coordinate1[1]), 15+xStep*coordinate2[0], 15+h-(yStep*coordinate2[1]))
           textSize(50)
           text(Wirelengths[k+1], 910, 250)
@@ -152,7 +150,6 @@ noLoop();
 
 //"Animation"
 gridpts()
-
 sleep(2000)
   .then(() => initnodes())
   .then(() => sleep(3000))
@@ -182,19 +179,4 @@ sleep(2000)
       })
   }
   doNextPromise(0);
-  // .then(() => iterate(0, 'blue', true, 13))
-  // .then(() => sleep(3000))
-  // .then(() => iterate(1, 'blue', true, 13))
-  // .then(() => sleep(3000))
-  // .then(() => iterate(2, 'blue', true, 13))
-  // .then(() => sleep(3000))
-  // .then(() => iterate(msts.length-1, 'blue', true, 16))
-  // .then(() => sleep(3000))
-  // .then(() => iterate(msts.length-1, 'green', true, 20))
-  // .then(() => sleep(3000))
-  // .then(() => clear())
-  // .then(() => iterate(msts.length-1, 'green', false, 20))
-  // .then(() => sleep(3000))
-
-
 }

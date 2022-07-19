@@ -171,7 +171,7 @@ sleep(2000)
         if (d < msts.length)
           doNextPromise(d)
         else
-        sleep(10)
+        sleep(0)
         .then(() => iterate(msts.length-1, 'blue', true, 16))
         .then(() => sleep(3000))
         .then(() => iterate(msts.length-1, 'green', true, 20))

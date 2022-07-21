@@ -13,8 +13,8 @@ def Solver():
 
     # Connections between nodes on networks in ascending order
     Network_Connections = []
-    Random_Amount = 100
-    for i in range(math.trunc(Random_Amount/2)):
+    Random_Amount = 64
+    for i in range(math.trunc(Random_Amount/1)):
         Networks.append(i)
     print(Networks)
     for i in range(len(Networks)):
@@ -41,11 +41,10 @@ def Solver():
             else:
                 XVals.append(RandX)
                 break
-    print(XVals)
     YVals = []
     YVals.append(0)
     YVals.append(Random_Amount)
-    for i in range(math.trunc(Random_Amount/2)):
+    for i in range(math.trunc(Random_Amount/4)):
         while True:
             RandY = random.randint(0,Random_Amount)
             if RandY in XVals:
@@ -53,7 +52,6 @@ def Solver():
             else:
                 YVals.append(RandY)
                 break
-    print(YVals)
     Parsed_Nodes = []
     Parsed_Nodes.append([0,0])
     Parsed_Nodes.append([0,Random_Amount])
@@ -67,7 +65,7 @@ def Solver():
             else:
                 Parsed_Nodes.append(Randcoord)
                 break
-    print(Parsed_Nodes)
+    print("Parsed =" + str(Parsed_Nodes))
     Nodes_XY = []
     Node_Letters = []
     Node_Numbers = []
@@ -163,8 +161,10 @@ def Solver():
             Formatted_Vars.append(Temporary_Vars)
             Temporary_Vars = []
     #Creates the last contraint, 3 should be 2 for the book problem but that makes it unfeasible
+# --             - -   - - - - - -- - - - - -- - - - -- - - - - - - - -- - - - -
     for i in range(len(Formatted_Vars)):
-        m += lpSum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 3
+        m += lpSum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 4
+
     #Run the optimizer
     #m.setParam('PoolSolutions',50)
     #m.setParam('PoolSearchMode',2)
@@ -202,19 +202,27 @@ def Solver():
     plt.xlim(-1, Random_Amount+1)
     plt.ylim(-1, Random_Amount+1)
     plt.grid()
-    for i in range(len(Parsed_Nodes)):
-        plt.plot(Parsed_Nodes[i][0], Parsed_Nodes[i][1], marker="o", markersize=3, markeredgecolor="red", markerfacecolor="black")
-    
-    print(Nested_Final_Nodes)
+
     k = 0
-    linewidth = 4
+    linewidth = 5
+    inc = 4/len(Networks)
+    red = 1
+    blue = 0
+    green = 0
     for i in range(len(Networks)):
-        linecolor = (random.random(),random.random(),random.random())
-        
+        linecolor = (red,green,blue)
+        red = red - 1 / len(Networks)
+        blue = blue + 1 / len(Networks)
+        green = 0
+        # green = random.random()
+        # red = random.random()
+        # blue = random.random()
         for j in range(len(Nested_Final_Nodes[i])):
             plt.plot([Parsed_Nodes[Final_Nodes[k][0][0]][0],Parsed_Nodes[Final_Nodes[k][0][1]][0]],[Parsed_Nodes[Final_Nodes[k][0][0]][1],Parsed_Nodes[Final_Nodes[k][0][1]][1]], color=linecolor, linewidth=linewidth)
             k = k + 1
-        linewidth = linewidth-.03
+        linewidth = linewidth-inc
+    for i in range(len(Parsed_Nodes)):
+        plt.plot(Parsed_Nodes[i][0], Parsed_Nodes[i][1], marker="o", markersize=3, markeredgecolor="red", markerfacecolor="black")
         
     #plt.plot(0,0, 50,50, color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12,)
     plt.show()

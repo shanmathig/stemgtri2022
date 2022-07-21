@@ -19,6 +19,6 @@ def parserMC():
         Final_List_Positions.append(Temp_Positions)
         Temp_Positions = []
     Loop_Positions = []
-    for i in range(len(Final_List_Positions)):
-        Final_List_Positions[i].append(List_Nums[i])
+    #for i in range(len(Final_List_Positions)):
+    #    Final_List_Positions[i].append(i)
     return Final_List_Positions

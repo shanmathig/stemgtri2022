@@ -1,19 +1,20 @@
 import math
 from parserMC import parserMC
-from gurobipy import *
+import random
+from pulp import *
+from matplotlib import pyplot as plt
 #This code uses no classes, started with lots of them and progressively regressed to lists trying to fix LP solver
+
 def Solver():
     #Make the model
-    m = Model('solver')
+    m = LpProblem('solver', LpMinimize)
     #Networks
-    Networks = ['n1','n2','n3','n4','n5','n6']
+    Network_Connections = [[0,11],[8,2],[3,5],[10,3],[6,7],[1,10]]
 
     # Connections between nodes on networks in ascending order
-    Network_Connections = [[0,11],[8,2],[3,5],[10,3],[6,7],[1,10]]
-    #Creates a list of nodes (int, eg [1,2,3,4])
-    #Creates a list of nodes (letter, eg [a,b,c,d])
-    #Creates a list of positions in XY ([[x1,y1],[x2,y2]])
+    Networks = ['n1','n2','n3','n4','n5','n6']
     Parsed_Nodes = parserMC()
+    print("Parsed =" + str(Parsed_Nodes))
     Nodes_XY = []
     Node_Letters = []
     Node_Numbers = []
@@ -21,11 +22,12 @@ def Solver():
         Temporary_XY = [Parsed_Nodes[i][0]]
         Temporary_XY.append(Parsed_Nodes[i][1])
         Nodes_XY.append(Temporary_XY)
-        Node_Letters.append(Parsed_Nodes[i][2])
+        Node_Letters.append(i)
         Node_Numbers.append(i)
     #Returns all edges ([[0,1],[1,0]])
     All_Edges = []
     Inital_Edges = Edges(Node_Numbers, Nodes_XY)
+    print(Inital_Edges)
     for i in range(len(Inital_Edges)):
         All_Edges.append(Inital_Edges[i][:])
         Temporary_Edges = Inital_Edges[i]
@@ -38,11 +40,12 @@ def Solver():
     Temporary_Vars = []
     for i in range(len(Cost)):
         for l in range(len(Networks)):
-            Temporary_Vars.append(m.addVar(vtype=GRB.BINARY, name = "X" + str(Node_Letters[All_Edges[i][0]]) + str(Node_Letters[All_Edges[i][1]])+ str(l+1)))
+            Temporary_Vars.append(LpVariable("X" + str(Node_Letters[All_Edges[i][0]]) + "-"+ str(Node_Letters[All_Edges[i][1]])+ " -n" +str(l+1),0,1,LpBinary))
+            print("X" + str(Node_Letters[All_Edges[i][0]]) + "-"+ str(Node_Letters[All_Edges[i][1]])+ " -n" +str(l+1))
         Objective_Vars.append(Temporary_Vars[:])
         Temporary_Vars = []
     #Update Gurobi
-    m.update()
+    #m.update()
     #Creates a list of costs in the same format as the objective function
     Edge_Costs = []
     for i in range(len(Cost)):
@@ -51,8 +54,10 @@ def Solver():
         Edge_Costs.append(Temporary_Vars[:])
         Temporary_Vars = []
     #Set the objective function
-    m.setObjective(quicksum(Objective_Vars[i][u] * int(Edge_Costs[i][u]) for i in range(len(Objective_Vars)) for u in range(len(Networks))), GRB.MINIMIZE)
+    #m.setObjective(quicksum(Objective_Vars[i][u] * int(Edge_Costs[i][u]) for i in range(len(Objective_Vars)) for u in range(len(Networks))), GRB.MINIMIZE)
     #Creates variables in the same format as objective variables, but with ints so they can be compared
+    m += lpSum(Objective_Vars[i][u] * int(Edge_Costs[i][u]) for i in range(len(Edge_Costs)) for u in range(len(Networks)))
+
     StandIn_Vars = []
     for i in range(len(Cost)):
         for l in range(len(Networks)):
@@ -94,7 +99,7 @@ def Solver():
         #Set the first set of contraint equations (xab1 - xba1 = 0)
         
         for n in range(len(Networks)):
-            m.addConstr(quicksum(Seperated_List[f][n]*int(Negative_Index[f]) for f in range(int(len(Seperated_List))))==RH_Index[n])
+            m += lpSum(Seperated_List[f][n]*int(Negative_Index[f]) for f in range(int(len(Seperated_List))))==RH_Index[n]
     #Creates a formatted list of the objective vars for use in the last set of contraints
     Formatted_Vars = []
     for i in range(int(len(Objective_Vars))):
@@ -106,30 +111,61 @@ def Solver():
             Temporary_Vars = []
     #Creates the last contraint, 3 should be 2 for the book problem but that makes it unfeasible
     for i in range(len(Formatted_Vars)):
-        m.addConstr(quicksum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 2)
+        m += lpSum(Formatted_Vars[i][k][l] for l in range(len(Networks)) for k in range(2)) <= 2
     #Run the optimizer
     #m.setParam('PoolSolutions',50)
     #m.setParam('PoolSearchMode',2)
-    m.optimize()
+    m.solve()
     #Prints the result
     Print_Names = []
     Final_Names = []
     for i in range(len(Cost)):
         for l in range(len(Networks)):
             Final_Names.append(str(l+1))
-    Flattened_List = [i for m in StandIn_Vars for i in m]
-    if m.status == GRB.status.OPTIMAL:
-        for i in range(len(Flattened_List)):
-            if abs(m.x[i]) == 1:
-                Print_Names.append([Flattened_List[i], int(Final_Names[i])])
+    Flattened_List = [i for m in Objective_Vars for i in m]
+    Flattened_List_Print = [i for m in StandIn_Vars for i in m]
+    for i in range(len(Flattened_List)):
+        if abs(Flattened_List[i].value()) == 1:
+            Print_Names.append([Flattened_List_Print[i], int(Final_Names[i])])
     Final_Nodes = []
+    Nested_Final_Nodes = []
     for l in range(len(Networks)):
+        TempNodes = []
         for i in range(len(Print_Names)):
             if(Print_Names[i][1] == l+1):
                 Final_Nodes.append(Print_Names[i])
+                TempNodes.append(Print_Names[i][0])
+        Nested_Final_Nodes.append(TempNodes)
+    print(" ")
+    print("Nodes: " + str(Parsed_Nodes))
+    print(" ")
+    for i in range(len(Network_Connections)):
+        print(str(Parsed_Nodes[Network_Connections[i][0]]) + " --> " + str(Parsed_Nodes[Network_Connections[i][1]]))
+    print(" ")
     for i in range(len(Final_Nodes)):
-        print(str(Node_Letters[Final_Nodes[i][0][0]])+" -- "+str(Node_Letters[Final_Nodes[i][0][1]])+ " net:"+ str(Final_Nodes[i][1]))
-
+        print(str(Parsed_Nodes[Final_Nodes[i][0][0]]) + " -- "+str(Parsed_Nodes[Final_Nodes[i][0][1]]) + " net:" + str(Final_Nodes[i][1]))
+    plt.rcParams["figure.figsize"] = [5, 5]
+    plt.rcParams["figure.autolayout"] = True
+    plt.xlim(-1, 13)
+    plt.ylim(-1, 13)
+    plt.grid()
+    
+    print(Parsed_Nodes)
+    print(Final_Nodes)
+    k = 0
+    linewidth = 3
+    for i in range(len(Networks)):
+        linecolor = (random.random(),random.random(),random.random())
+        
+        for j in range(len(Nested_Final_Nodes[i])):
+            plt.plot([Parsed_Nodes[Final_Nodes[k][0][0]][0],Parsed_Nodes[Final_Nodes[k][0][1]][0]],[Parsed_Nodes[Final_Nodes[k][0][0]][1],Parsed_Nodes[Final_Nodes[k][0][1]][1]], color=linecolor, linewidth=linewidth)
+            k = k + 1
+        linewidth = linewidth-.4
+    for i in range(len(Parsed_Nodes)):
+        plt.plot(Parsed_Nodes[i][0], Parsed_Nodes[i][1], marker="o", markersize=3, markeredgecolor="red", markerfacecolor="black")
+    
+    #plt.plot(0,0, 50,50, color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12,)
+    plt.show()
 def Coster(Edges, XYpos):
     Costlist = []
     for i in range(len(Edges)):
